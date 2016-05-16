@@ -17,13 +17,13 @@ namespace IronJS.Interpreter
         {
             var tokens = new List<Token>();
 
-            var token = GetToken();
+            Token token = null;
 
-            while (token != null)
+            do
             {
-                tokens.Add(token);
                 token = GetToken();
-            }
+                tokens.Add(token);
+            } while (token != SymbolToken.EOF);
             
             return tokens.ToArray();
         }
@@ -34,7 +34,7 @@ namespace IronJS.Interpreter
 
             char c = _scanner.Peek();
 
-            if (c == Scanner._eof) return null;
+            if (c == Scanner._eof) return SymbolToken.EOF;
 
             if (SymbolToken.OneCharacterSymbolTokens.ContainsKey(c))
             {

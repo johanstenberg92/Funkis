@@ -7,7 +7,7 @@ namespace IronJS.Interpreter
     {
         public int Row { get; private set; }
         public int Column { get; private set; }
-        public int Position { get; private set; }
+        private int _position = -1;
 
         public const char _eof = unchecked((char)-1);
 
@@ -15,39 +15,47 @@ namespace IronJS.Interpreter
 
         public Scanner(string text)
         {
-            _text = text.Where(c => c != '\r').ToString();
-            Row = -1;
-            Column = 0;
-            Position = -1;
+            _text = new string(text.Where(c => c != '\r').ToArray());
+            Row = 0;
+            Column = -1;
         }
 
         public char Read()
         {
-            Position++;
-            Column++;
+            if (IsCurrentCharacterNewline())
+            {
+                Row += 1;
+                Column = -1;
+            }
+
+            _position++;
 
             char c = ReadNextChar();
 
-            if (c == '\n')
-            {
-                Row += 1;
-                Column = 0;
-            }
+            if (c != _eof) Column++;
 
             return c;
         }
 
         public char Peek() => PeekWithOffset(1);
 
-        public char PeekWithOffset(int offset) => ReadNextChar(Position + offset + 1);
+        public char PeekWithOffset(int offset) => ReadNextChar(_position + 1);
 
-        private char ReadNextChar() => ReadNextChar(Position);
+        private char ReadNextChar() => ReadNextChar(_position);
 
         private char ReadNextChar(int position)
         {
-            if (_text.Length == position) return _eof;
+            if (_text.Length <= position) return _eof;
 
-            return _text[Position];
+            return _text[position];
+        }
+
+        private bool IsCurrentCharacterNewline()
+        {
+            return 
+                _position != -1 && 
+                _position < _text.Length && 
+                _text[_position] == '\n';
         }
     }
 }
