@@ -5,8 +5,8 @@ namespace IronJS.Interpreter
 
     public class Scanner
     {
-        public int Row { get; private set; }
-        public int Column { get; private set; }
+        private int _column = -1;
+        private int _row = -1;
         private int _position = -1;
 
         public const char _eof = unchecked((char)-1);
@@ -16,25 +16,41 @@ namespace IronJS.Interpreter
         public Scanner(string text)
         {
             _text = new string(text.Where(c => c != '\r').ToArray());
-            Row = 0;
-            Column = -1;
+            _row = 0;
+            _column = -1;
         }
 
         public char Read()
         {
             if (IsCurrentCharacterNewline())
             {
-                Row += 1;
-                Column = -1;
+                _row += 1;
+                _column = -1;
             }
 
             _position++;
 
             char c = ReadNextChar();
 
-            if (c != _eof) Column++;
+            if (c != _eof) _column++;
 
             return c;
+        }
+
+        public Position PeekPosition()
+        {
+            if (IsCurrentCharacterNewline())
+            {
+                return new Position(0, _row + 1);
+            }
+            else if (Peek() == _eof)
+            {
+                return new Position(-1, -1);
+            }
+            else
+            {
+                return new Position(_column + 1, _row);
+            }
         }
 
         public char Peek() => PeekWithOffset(1);

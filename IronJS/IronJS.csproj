@@ -59,9 +59,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Interpreter\JSExpression.cs" />
+    <Compile Include="Interpreter\Expression.cs" />
     <Compile Include="Interpreter\Lexer.cs" />
     <Compile Include="Interpreter\Parser.cs" />
+    <Compile Include="Interpreter\Position.cs" />
     <Compile Include="Interpreter\Scanner.cs" />
     <Compile Include="Interpreter\Token.cs" />
     <Compile Include="Program.cs" />

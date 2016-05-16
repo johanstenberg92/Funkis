@@ -23,8 +23,8 @@ namespace IronJS
                 var text = File.ReadAllText(path);
                 var scanner = new Scanner(text);
 
-                Parser parser = new Parser();
-                var expressions = parser.Parse(scanner);
+                Parser parser = new Parser(scanner);
+                var ast = parser.Parse();
 
             }
             catch (Exception ex)

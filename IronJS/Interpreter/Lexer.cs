@@ -13,26 +13,35 @@ namespace IronJS.Interpreter
             _scanner = scanner;
         }
 
-        public Token[] Tokenize()
+        public Tuple<Token, Position>[] Tokenize()
         {
-            var tokens = new List<Token>();
-
-            Token token = null;
+            var tuples = new List<Tuple<Token, Position>>();
+            
+            Tuple<Token, Position> tuple = null;
 
             do
             {
-                token = GetToken();
-                tokens.Add(token);
-            } while (token != SymbolToken.EOF);
+                tuple = GetTokenAndPosition();
+                tuples.Add(tuple);
+            } while (tuple.Item1 != SymbolToken.EOF);
             
-            return tokens.ToArray();
+            return tuples.ToArray();
+        }
+
+        private Tuple<Token, Position> GetTokenAndPosition()
+        {
+            SkipWhitespace();
+
+            var position = _scanner.PeekPosition();
+
+            var token = GetToken();
+
+            return new Tuple<Token, Position>(token, position);
         }
 
         private Token GetToken()
         {
-            SkipWhitespace();
-
-            char c = _scanner.Peek();
+            var c = _scanner.Peek();
 
             if (c == Scanner._eof) return SymbolToken.EOF;
 
@@ -51,7 +60,7 @@ namespace IronJS.Interpreter
                     c = _scanner.Peek();
                 }
 
-                var str = chars.ToString();
+                var str = new string(chars.ToArray());
 
                 if (KeywordToken.KeywordTokens.ContainsKey(str))
                 {
@@ -73,24 +82,26 @@ namespace IronJS.Interpreter
                     c = _scanner.Peek();
                 }
 
-                var str = chars.ToString();
+                var str = new string(chars.ToArray());
 
                 return new NumericToken(Int32.Parse(str));
             }
 
             if (c == '"')
             {
+                _scanner.Read();
+
                 var chars = new List<char>();
+
+                c = _scanner.Read();
 
                 while (c != '"')
                 {
-                    chars.Add(_scanner.Read());
-                    c = _scanner.Peek();
+                    chars.Add(c);
+                    c = _scanner.Read();
                 }
-
-                _scanner.Read();
-
-                return new StringToken(chars.ToString());
+                
+                return new StringToken(new string(chars.ToArray()));
             }
 
             char[] next = { _scanner.Peek(), _scanner.PeekWithOffset(1) };
@@ -102,7 +113,8 @@ namespace IronJS.Interpreter
                 return SymbolToken.TwoCharacterSymbolTokens[possibleTwoCharacterSymbols];
             }
 
-            throw new InvalidOperationException($"Token parsing failed at row {_scanner.Row}, column {_scanner.Column}");
+            var position = _scanner.PeekPosition();
+            throw new InvalidOperationException($"Lexing failed at row {position.Row}, column {position.Column}");
         }
 
         private static char[] WhiteSpaceChars = { ' ', '\t', '\n' };

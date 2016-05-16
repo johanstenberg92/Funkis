@@ -8,9 +8,9 @@ namespace IronJSTests.Interpreter
     {
         [TestMethod]
         [DeploymentItem(@"TestFiles\hello-world.js")]
-        public void HelloWorldFileTest()
+        public void ScanHelloWorldTest()
         {
-            string text = TestFilesHelper.ReadHelloWorldTestFile();
+            var text = TestFilesHelper.ReadHelloWorldTestFile();
 
             var scanner = new Scanner(text);
 
@@ -22,7 +22,7 @@ namespace IronJSTests.Interpreter
                 '(', '"', 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o',
                 'r',  'l', 'd', '!', '"', ')', ';', '\n', '}', '\n',
                 '\n', 'h', 'e', 'l', 'l', 'o', '_', 'w', 'o', 'r',
-                'l', 'd', '(', ')', ';'
+                'l', 'd', '(', ')', ';', unchecked ((char) -1)
             };
 
             int[] columns = {
@@ -31,7 +31,7 @@ namespace IronJSTests.Interpreter
                 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
                 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
                 30, 31, 32, 0, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-                10, 11, 12, 13
+                10, 11, 12, 13, -1
             };
 
             int[] rows = {
@@ -39,26 +39,31 @@ namespace IronJSTests.Interpreter
                 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4, 4, 4, 4, 4, 4, 4,
-                4, 4, 4, 4, 4, 4, 4, 4
+                4, 4, 4, 4, 4, 4, 4, -1
             };
 
-            for (int i = 0; i < characters.Length; ++i)
-            {
-                char character = characters[i];
+            Assert.AreEqual(characters.Length, columns.Length);
+            Assert.AreEqual(rows.Length, columns.Length);
 
-                char scannerPeek = scanner.Peek();
+            for (var i = 0; i < characters.Length; ++i)
+            {
+                var character = characters[i];
+
+                var scannerPeek = scanner.Peek();
                 Assert.AreEqual(character, scannerPeek);
 
-                char scannerRead = scanner.Read();
-                Assert.AreEqual(character, scannerRead);
-
+                var position = scanner.PeekPosition();
+                
                 int column = columns[i];
-                int scannerColumn = scanner.Column;
+                int scannerColumn = position.Column;
                 Assert.AreEqual(column, scannerColumn);
 
                 int row = rows[i];
-                int scannerRow = scanner.Row;
+                int scannerRow = position.Row;
                 Assert.AreEqual(row, scannerRow);
+
+                var scannerRead = scanner.Read();
+                Assert.AreEqual(character, scannerRead);
             }
 
             Assert.AreEqual(Scanner._eof, scanner.Peek());
