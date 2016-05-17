@@ -59,7 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Interpreter\Expression.cs" />
+    <Compile Include="Interpreter\ASTNode.cs" />
     <Compile Include="Interpreter\Lexer.cs" />
     <Compile Include="Interpreter\Parser.cs" />
     <Compile Include="Interpreter\Position.cs" />

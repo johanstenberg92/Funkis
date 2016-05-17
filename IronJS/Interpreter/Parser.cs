@@ -33,41 +33,77 @@ namespace IronJS.Interpreter
             _positions = positions.ToArray();
         }
 
-        public Expression Parse()
+        public ASTNode Parse()
         {
             return program();
         }
 
-        private ProgramExpression program()
+        private ProgramNode program()
         {
-            var statements = new List<StatementExpression>();
+            var statements = new List<StatementNode>();
 
-            var s = statement();
+            var s = Statement();
 
             while (s != null)
             {
                 statements.Add(s);
-                s = statement();
+                s = Statement();
             }
 
-            return new ProgramExpression(statements.ToArray());
+            return new ProgramNode(statements.ToArray());
         }
 
-        private StatementExpression statement()
+        private StatementNode Statement()
         {
             if (Found(KeywordToken.Var))
             {
+                var identifier = ExpectIdentifier();
+                Expect(SymbolToken.Assign);
+
+                var expression = Expression();
+
+                return new VarStatementNode(identifier, expression);
             }
             else if (Found(KeywordToken.Function))
             {
             }
-            else if (Found(KeywordToken.If))
+
+            var isIf = Found(KeywordToken.If);
+
+            if (isIf || Found(KeywordToken.While))
             {
-            }
-            else if (Found(KeywordToken.While))
-            {
+                Expect(SymbolToken.Parenthesis);
+
+                var expression = Expression();
+
+                Expect(SymbolToken.ClosingParenthesis);
+
+                var brackets = Found(SymbolToken.Bracket);
+
+                var statement = Statement();
+
+                if (brackets) Expect(SymbolToken.ClosingBracket);
+
+                if (isIf) return new IfStatementNode(expression, statement);
+                else return new WhileStatementNode(expression, statement);
             }
 
+            var maybeIdentifier = FoundIdentifier();
+            
+            if (maybeIdentifier != null)
+            {
+                Expect(SymbolToken.Assign);
+                
+                var expression = Expression();
+
+                return new AssignmentStatementNode(maybeIdentifier, expression);
+            }
+
+            return null;
+        }
+
+        private ExpressionNode Expression()
+        {
             return null;
         }
 
@@ -83,15 +119,47 @@ namespace IronJS.Interpreter
             return false;
         }
 
+        private string FoundIdentifier()
+        {
+            var token = _tokens[_position] as IdentifierToken;
+
+            if (token != null)
+            {
+                _position++;
+                return token.Value;
+            }
+
+            return null;
+        }
+
         private void Expect(Token token)
         {
             if (token != _tokens[_position])
             {
-                var position = _positions[_position];
-                throw new InvalidOperationException($"Parsing failed at row {position.Row}, column {position.Column}");
+                ThrowParserError();
             }
 
             _position++;
+        }
+
+        private string ExpectIdentifier()
+        {
+            var token = _tokens[_position] as IdentifierToken;
+
+            if (token != null)
+            {
+                _position++;
+                return token.Value;
+            }
+
+            ThrowParserError();
+            return null;
+        }
+
+        private void ThrowParserError()
+        {
+            var position = _positions[_position];
+            throw new InvalidOperationException($"Parsing failed at row {position.Row}, column {position.Column}");
         }
     }
 }
