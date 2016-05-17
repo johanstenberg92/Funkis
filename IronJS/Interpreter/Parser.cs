@@ -42,19 +42,22 @@ namespace IronJS.Interpreter
         {
             var statements = new List<StatementNode>();
 
-            var s = Statement();
+            var position = GetPosition();
+            var statement = Statement();
 
-            while (s != null)
+            while (statement != null)
             {
-                statements.Add(s);
-                s = Statement();
+                statements.Add(statement);
+                statement = Statement();
             }
 
-            return new ProgramNode(statements.ToArray());
+            return new ProgramNode(statements.ToArray(), position);
         }
 
         private StatementNode Statement()
         {
+            var position = GetPosition();
+
             if (Found(KeywordToken.Var))
             {
                 var identifier = ExpectIdentifier();
@@ -62,10 +65,17 @@ namespace IronJS.Interpreter
 
                 var expression = Expression();
 
-                return new VarStatementNode(identifier, expression);
+                return new VarStatementNode(identifier, expression, position);
             }
             else if (Found(KeywordToken.Function))
             {
+                var identifier = ExpectIdentifier();
+
+                Expect(SymbolToken.Parenthesis);
+
+                var parameters = new List<string>();
+
+                // TODO
             }
 
             var isIf = Found(KeywordToken.If);
@@ -84,8 +94,8 @@ namespace IronJS.Interpreter
 
                 if (brackets) Expect(SymbolToken.ClosingBracket);
 
-                if (isIf) return new IfStatementNode(expression, statement);
-                else return new WhileStatementNode(expression, statement);
+                if (isIf) return new IfStatementNode(expression, statement, position);
+                else return new WhileStatementNode(expression, statement, position);
             }
 
             var maybeIdentifier = FoundIdentifier();
@@ -96,8 +106,10 @@ namespace IronJS.Interpreter
                 
                 var expression = Expression();
 
-                return new AssignmentStatementNode(maybeIdentifier, expression);
+                return new AssignmentStatementNode(maybeIdentifier, expression, position);
             }
+
+            // Function calls might be messed up since both expressions and statements?
 
             return null;
         }
@@ -105,6 +117,25 @@ namespace IronJS.Interpreter
         private ExpressionNode Expression()
         {
             return null;
+        }
+
+        private FactorNode Factor()
+        {
+            var position = GetPosition();
+
+            var maybeIdentifier = FoundIdentifier();
+
+            if (maybeIdentifier != null) return new IdentifierFactorNode(maybeIdentifier, position);
+
+            var maybeNumber = FoundNumber();
+
+            if (maybeNumber.HasValue) return new NumberFactorNode(maybeNumber.Value, position);
+
+            Expect(SymbolToken.Parenthesis);
+            var expression = Expression();
+            Expect(SymbolToken.ClosingParenthesis);
+
+            return new ExpressionFactorNode(expression, position);
         }
 
         private bool Found(Token token)
@@ -132,6 +163,19 @@ namespace IronJS.Interpreter
             return null;
         }
 
+        private int? FoundNumber()
+        {
+            var token = _tokens[_position] as NumericToken;
+
+            if (token != null)
+            {
+                _position++;
+                return token.Value;
+            }
+
+            return null;
+        }
+
         private void Expect(Token token)
         {
             if (token != _tokens[_position])
@@ -144,22 +188,20 @@ namespace IronJS.Interpreter
 
         private string ExpectIdentifier()
         {
-            var token = _tokens[_position] as IdentifierToken;
-
-            if (token != null)
-            {
-                _position++;
-                return token.Value;
-            }
-
-            ThrowParserError();
-            return null;
+            var maybeIdentifier = FoundIdentifier();
+            if (maybeIdentifier == null) ThrowParserError();
+            return maybeIdentifier;
         }
 
         private void ThrowParserError()
         {
             var position = _positions[_position];
             throw new InvalidOperationException($"Parsing failed at row {position.Row}, column {position.Column}");
+        }
+
+        private Position GetPosition()
+        {
+            return _positions[_position];
         }
     }
 }
