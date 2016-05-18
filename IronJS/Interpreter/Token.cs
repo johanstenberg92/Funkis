@@ -47,6 +47,7 @@ namespace IronJS.Interpreter
         public static SymbolToken IncrementWithOne = new SymbolToken();
         public static SymbolToken DecrementWithOne = new SymbolToken();
         public static SymbolToken Or = new SymbolToken();
+        public static SymbolToken And = new SymbolToken();
         public static SymbolToken IncrementWith = new SymbolToken();
         public static SymbolToken DecrementWIth = new SymbolToken();
 
@@ -59,6 +60,7 @@ namespace IronJS.Interpreter
             { "++", IncrementWithOne },
             { "--", DecrementWithOne },
             { "||", Or },
+            { "&&", And },
             { "+=", IncrementWith },
             { "-=", DecrementWIth }
         };
