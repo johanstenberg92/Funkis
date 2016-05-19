@@ -30,8 +30,7 @@ statement =
 	| "while" "(" expression ")" ( "{" statement { statement } "}" | statement )
 	| ident "=" expression ";"
 	| "function" ident "(" [ ident { "," ident } ] } ")" "{" statement { statement } "return" expression ";" "}"
-	| ident ("+=" | "-=") expression ";"
-	| ident ("++" | "--") ";"
+	| ident ("+=" | "-=" | "/=" | "*=") expression ";"
 	| function_call ";"
 
 expression = 
@@ -39,7 +38,7 @@ expression =
 	| expression ("==" | ">=" | "<=" | "!=" | "<" | ">" | "||" | "&&") expression
 	| function_call
 
-function_call = ident { "." ident } "(" [ expression { "," expression } ] ")"
+function_call = ident "(" [ expression { "," expression } ] ")"
 
 term = factor { ("*" | "/") factor }
 

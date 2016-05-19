@@ -50,6 +50,8 @@ namespace IronJS.Interpreter
         public static SymbolToken And = new SymbolToken();
         public static SymbolToken IncrementWith = new SymbolToken();
         public static SymbolToken DecrementWIth = new SymbolToken();
+        public static SymbolToken DivideWith = new SymbolToken();
+        public static SymbolToken MultiplyWith = new SymbolToken();
 
         public static Dictionary<string, SymbolToken> TwoCharacterSymbolTokens = new Dictionary<string, SymbolToken>()
         {
@@ -62,7 +64,9 @@ namespace IronJS.Interpreter
             { "||", Or },
             { "&&", And },
             { "+=", IncrementWith },
-            { "-=", DecrementWIth }
+            { "-=", DecrementWIth },
+            { "/=", DivideWith },
+            { "*=", MultiplyWith }
         };
 
         public static SymbolToken EOF = new SymbolToken();
