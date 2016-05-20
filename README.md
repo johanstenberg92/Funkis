@@ -44,6 +44,7 @@ factor =
    property
    | function_call
    | number
+   | """ string """
    | "(" expression ")"
 
 property = ident { "." ident }
