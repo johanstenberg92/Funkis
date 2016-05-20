@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Interpreter\LexerTests.cs" />
     <Compile Include="Interpreter\ScannerTests.cs" />
+    <Compile Include="Interpreter\ParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestFilesHelper.cs" />
   </ItemGroup>

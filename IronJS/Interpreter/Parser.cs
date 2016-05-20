@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace IronJS.Interpreter
 {
-    class Parser
+    public class Parser
     {
         private Token[] _tokens;
 
@@ -34,7 +33,7 @@ namespace IronJS.Interpreter
             _positions = positions.ToArray();
         }
 
-        public ASTNode Parse()
+        public ProgramNode Parse()
         {
             return program();
         }
@@ -144,19 +143,19 @@ namespace IronJS.Interpreter
                 return new FunctionStatementNode(identifier, parameters.ToArray(), statements, returnExpr, position);
             }
 
-            var maybeIdentifier = FoundIdentifier();
+            var maybeProperty = FoundProperty();
             
-            if (maybeIdentifier != null)
+            if (maybeProperty != null)
             {
                 if (Found(SymbolToken.Assign))
                 {
                     var expression = Expression();
 
-                    return new AssignmentStatementNode(maybeIdentifier, expression, position);
+                    return new AssignmentStatementNode(maybeProperty, expression, position);
                 }
                 else if (Found(SymbolToken.Parenthesis))
                 {
-                    var functionCall = FunctionCall(maybeIdentifier, position);
+                    var functionCall = FunctionCall(maybeProperty, position);
                     return new FunctionCallStatementNode(functionCall);
                 }
                 else
@@ -181,7 +180,7 @@ namespace IronJS.Interpreter
                     else if (idx == 2) op = '*';
                     else op = '/';
 
-                    return new OperatorEqualStatementNode(maybeIdentifier, op, expression, position);
+                    return new OperatorEqualStatementNode(maybeProperty, op, expression, position);
                 }
             }
 
@@ -249,28 +248,68 @@ namespace IronJS.Interpreter
         {
             var position = Position();
 
-            var maybeIdentifier = FoundIdentifier();
+            var maybeProperty = FoundProperty();
 
-            if (maybeIdentifier != null)
+            if (maybeProperty != null)
             {
                 if (Found(SymbolToken.Parenthesis))
                 {
-                    var functionCall = FunctionCall(maybeIdentifier, position);
+                    var functionCall = FunctionCall(maybeProperty, position);
                     return new FunctionCallFactorNode(functionCall);
                 }
 
-                return new IdentifierFactorNode(maybeIdentifier, position);
+                return new PropertyFactorNode(maybeProperty, position);
             }
 
             var maybeNumber = FoundNumber();
 
             if (maybeNumber.HasValue) return new NumberFactorNode(maybeNumber.Value, position);
 
+            var maybeString = FoundString();
+
+            if (maybeString != null) return new StringFactorNode(maybeString, position);
+
             Expect(SymbolToken.Parenthesis);
             var expression = Expression();
             Expect(SymbolToken.ClosingParenthesis);
 
             return new ExpressionFactorNode(expression, position);
+        }
+
+        private PropertyNode FoundProperty()
+        {
+            var position = Position();
+
+            var identifier = FoundIdentifier();
+
+            if (identifier != null)
+            {
+                var identifiers = new List<string>();
+
+                identifiers.Add(identifier);
+
+                while (Found(SymbolToken.Dot))
+                {
+                    identifier = ExpectIdentifier();
+                    identifiers.Add(identifier);
+                }
+
+                return new PropertyNode(identifiers.ToArray(), position);
+            }
+
+            return null;
+        }
+
+        private PropertyNode ExpectProperty()
+        {
+            var property = FoundProperty();
+
+            if (property == null)
+            {
+                ThrowParserError();
+            }
+
+            return property;
         }
 
         private bool Found(Token token)
@@ -301,6 +340,19 @@ namespace IronJS.Interpreter
         private int? FoundNumber()
         {
             var token = _tokens[_position] as NumericToken;
+
+            if (token != null)
+            {
+                _position++;
+                return token.Value;
+            }
+
+            return null;
+        }
+
+        private string FoundString()
+        {
+            var token = _tokens[_position] as StringToken;
 
             if (token != null)
             {
@@ -366,28 +418,31 @@ namespace IronJS.Interpreter
             return res;
         }
 
-        private FunctionCallNode FunctionCall(string identifier, Position position)
+        private FunctionCallNode FunctionCall(PropertyNode property, Position position)
         {
             var parameters = new List<ExpressionNode>();
 
-            var parameter = Expression();
-
-            if (parameter != null)
+            if (!Found(SymbolToken.ClosingParenthesis))
             {
-                parameters.Add(parameter);
+                var parameter = Expression();
 
-                while (Found(SymbolToken.Comma))
+                if (parameter != null)
                 {
-                    parameter = Expression();
-                    if (parameter == null) ThrowParserError();
                     parameters.Add(parameter);
-                }
-            }
 
-            Expect(SymbolToken.ClosingParenthesis);
+                    while (Found(SymbolToken.Comma))
+                    {
+                        parameter = Expression();
+                        if (parameter == null) ThrowParserError();
+                        parameters.Add(parameter);
+                    }
+                }
+
+                Expect(SymbolToken.ClosingParenthesis);
+            }
             Expect(SymbolToken.SemiColon);
 
-            return new FunctionCallNode(identifier, parameters.ToArray(), position);
+            return new FunctionCallNode(property, parameters.ToArray(), position);
         }
     }
 }

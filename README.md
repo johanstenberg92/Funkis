@@ -29,20 +29,22 @@ statement =
 	| "if" "(" expression ")" ( "{" statement { statement } "}" | statement )
 	| "while" "(" expression ")" ( "{" statement { statement } "}" | statement )
 	| "function" ident "(" [ ident { "," ident } ] } ")" "{" statement { statement } [ "return" expression ";" ] "}"
-	| ident "=" expression ";"
+	| property "=" expression ";"
 	| function_call ";"
-	| ident ("+=" | "-=" | "/=" | "*=") expression ";"
+	| property ("+=" | "-=" | "/=" | "*=") expression ";"
 
 expression = 
     ["+" | "-"] term
 
-function_call = ident "(" [ expression { "," expression } ] ")"
+function_call = property "(" [ expression { "," expression } ] ")"
 
 term = factor { ("*" | "/" | "+" | "-" | "==" | ">=" | "<=" | "!=" | "<" | ">" | "||" | "&&" ) factor }
 
 factor =
-   ident
+   property
    | function_call
    | number
    | "(" expression ")"
+
+property = ident { "." ident }
 ```
