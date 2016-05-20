@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace IronJS.Interpreter
 {
@@ -40,9 +41,16 @@ namespace IronJS.Interpreter
 
         private ProgramNode program()
         {
+            var position = Position();
+            var statements = Statements();
+
+            return new ProgramNode(statements, position);
+        }
+
+        private StatementNode[] Statements()
+        {
             var statements = new List<StatementNode>();
 
-            var position = GetPosition();
             var statement = Statement();
 
             while (statement != null)
@@ -51,12 +59,12 @@ namespace IronJS.Interpreter
                 statement = Statement();
             }
 
-            return new ProgramNode(statements.ToArray(), position);
+            return statements.ToArray();
         }
 
         private StatementNode Statement()
         {
-            var position = GetPosition();
+            var position = Position();
 
             if (Found(KeywordToken.Var))
             {
@@ -67,6 +75,35 @@ namespace IronJS.Interpreter
 
                 return new VarStatementNode(identifier, expression, position);
             }
+
+            Token[] conditionals = { KeywordToken.If, KeywordToken.While };
+            var conditionalsIndex = FoundOneOf(conditionals);
+
+            if (conditionalsIndex != -1)
+            {
+                Expect(SymbolToken.Parenthesis);
+
+                var expression = Expression();
+
+                Expect(SymbolToken.ClosingParenthesis);
+
+                StatementNode[] statements = null;
+
+                if (Found(SymbolToken.Bracket))
+                {
+                    statements = Statements();
+                    Expect(SymbolToken.ClosingBracket);
+                }
+                else
+                {
+                    statements = new StatementNode[] { Statement() };
+                }
+
+                if (conditionalsIndex == 0)
+                    return new IfStatementNode(expression, statements, position);
+                else
+                    return new WhileStatementNode(expression, statements, position);
+            }
             else if (Found(KeywordToken.Function))
             {
                 var identifier = ExpectIdentifier();
@@ -75,57 +112,155 @@ namespace IronJS.Interpreter
 
                 var parameters = new List<string>();
 
-                // TODO
-            }
+                var parameter = FoundIdentifier();
 
-            var isIf = Found(KeywordToken.If);
+                if (parameter != null)
+                {
+                    parameters.Add(parameter);
 
-            if (isIf || Found(KeywordToken.While))
-            {
-                Expect(SymbolToken.Parenthesis);
-
-                var expression = Expression();
+                    while (Found(SymbolToken.Comma))
+                    {
+                        parameter = ExpectIdentifier();
+                        parameters.Add(parameter);
+                    }
+                }
 
                 Expect(SymbolToken.ClosingParenthesis);
 
-                var brackets = Found(SymbolToken.Bracket);
+                Expect(SymbolToken.Bracket);
 
-                var statement = Statement();
+                var statements = Statements();
 
-                if (brackets) Expect(SymbolToken.ClosingBracket);
+                ExpressionNode returnExpr = null;
 
-                if (isIf) return new IfStatementNode(expression, statement, position);
-                else return new WhileStatementNode(expression, statement, position);
+                if (Found(KeywordToken.Return))
+                {
+                    returnExpr = Expression();
+                    Expect(SymbolToken.SemiColon);
+                }
+
+                Expect(SymbolToken.ClosingBracket);
+
+                return new FunctionStatementNode(identifier, parameters.ToArray(), statements, returnExpr, position);
             }
 
             var maybeIdentifier = FoundIdentifier();
             
             if (maybeIdentifier != null)
             {
-                Expect(SymbolToken.Assign);
-                
-                var expression = Expression();
+                if (Found(SymbolToken.Assign))
+                {
+                    var expression = Expression();
 
-                return new AssignmentStatementNode(maybeIdentifier, expression, position);
+                    return new AssignmentStatementNode(maybeIdentifier, expression, position);
+                }
+                else if (Found(SymbolToken.Parenthesis))
+                {
+                    var functionCall = FunctionCall(maybeIdentifier, position);
+                    return new FunctionCallStatementNode(functionCall);
+                }
+                else
+                {
+                    Token[] withOperations = {
+                        SymbolToken.IncrementWith,
+                        SymbolToken.DecrementWith,
+                        SymbolToken.MultiplyWith,
+                        SymbolToken.DivideWith
+                    };
+
+                    var idx = ExpectOneOf(withOperations);
+
+                    var expression = Expression();
+
+                    Expect(SymbolToken.SemiColon);
+
+                    char op = '+';
+
+                    if (idx == 0) op = '+';
+                    else if (idx == 1) op = '-';
+                    else if (idx == 2) op = '*';
+                    else op = '/';
+
+                    return new OperatorEqualStatementNode(maybeIdentifier, op, expression, position);
+                }
             }
-
-            // Function calls might be messed up since both expressions and statements?
 
             return null;
         }
 
         private ExpressionNode Expression()
         {
-            return null;
+            var position = Position();
+
+            Token[] addOrSubtract = { SymbolToken.Add, SymbolToken.Subtract };
+
+            var idx = FoundOneOf(addOrSubtract);
+            char optionalOp = idx != -1 ? (idx == 0 ? '+' : '-') : unchecked ((char) -1);
+
+            var term = Term();
+
+            return new TermExpressionNode(optionalOp, term, position);
+        }
+
+        private static Dictionary<Token, string> infixOps = new Dictionary<Token, string>()
+        {
+            { SymbolToken.Multiply, "*" },
+            { SymbolToken.Divide, "/" },
+            { SymbolToken.Add, "+" },
+            { SymbolToken.Subtract, "-" },
+            { SymbolToken.Equal, "==" },
+            { SymbolToken.LargerThanOrEqual, ">=" },
+            { SymbolToken.LessThanOrEqual, "<=" },
+            { SymbolToken.NotEqual, "!=" },
+            { SymbolToken.LessThan, "<" },
+            { SymbolToken.LargerThan, ">" },
+            { SymbolToken.Or, "||" },
+            { SymbolToken.And, "&&" }
+        };
+
+        private TermNode Term()
+        {
+            var position = Position();
+            var factor = Factor();
+
+            var infixOpsKeys = infixOps.Keys.ToArray();
+
+            var optionalOps = new List<string>();
+
+            var optionalFactors = new List<FactorNode>();
+
+            var idx = FoundOneOf(infixOpsKeys);
+
+            while (idx != -1)
+            {
+                var token = infixOpsKeys[idx];
+                var op = infixOps[token];
+
+                optionalOps.Add(op);
+                optionalFactors.Add(Factor());
+                
+                idx = FoundOneOf(infixOpsKeys);
+            }
+
+            return new TermNode(factor, optionalOps.ToArray(), optionalFactors.ToArray(), position);
         }
 
         private FactorNode Factor()
         {
-            var position = GetPosition();
+            var position = Position();
 
             var maybeIdentifier = FoundIdentifier();
 
-            if (maybeIdentifier != null) return new IdentifierFactorNode(maybeIdentifier, position);
+            if (maybeIdentifier != null)
+            {
+                if (Found(SymbolToken.Parenthesis))
+                {
+                    var functionCall = FunctionCall(maybeIdentifier, position);
+                    return new FunctionCallFactorNode(functionCall);
+                }
+
+                return new IdentifierFactorNode(maybeIdentifier, position);
+            }
 
             var maybeNumber = FoundNumber();
 
@@ -199,9 +334,60 @@ namespace IronJS.Interpreter
             throw new InvalidOperationException($"Parsing failed at row {position.Row}, column {position.Column}");
         }
 
-        private Position GetPosition()
+        private Position Position()
         {
             return _positions[_position];
+        }
+
+        private int FoundOneOf(Token[] tokens)
+        {
+            var t = _tokens[_position];
+            for (int i = 0; i < tokens.Length; ++i)
+            {
+                if (tokens[i] == t)
+                {
+                    _position++;
+                    return i;
+                }
+            }
+            
+            return -1;
+        }
+
+        private int ExpectOneOf(Token[] tokens)
+        {
+            var res = FoundOneOf(tokens);
+
+            if (res == -1)
+            {
+                ThrowParserError();
+            }
+
+            return res;
+        }
+
+        private FunctionCallNode FunctionCall(string identifier, Position position)
+        {
+            var parameters = new List<ExpressionNode>();
+
+            var parameter = Expression();
+
+            if (parameter != null)
+            {
+                parameters.Add(parameter);
+
+                while (Found(SymbolToken.Comma))
+                {
+                    parameter = Expression();
+                    if (parameter == null) ThrowParserError();
+                    parameters.Add(parameter);
+                }
+            }
+
+            Expect(SymbolToken.ClosingParenthesis);
+            Expect(SymbolToken.SemiColon);
+
+            return new FunctionCallNode(identifier, parameters.ToArray(), position);
         }
     }
 }

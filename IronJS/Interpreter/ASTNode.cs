@@ -194,14 +194,14 @@ namespace IronJS.Interpreter
 
         public StatementNode[] Statements { get; private set; }
 
-        public ExpressionNode ReturnExpr { get; private set; }
+        public ExpressionNode OptReturnExpr { get; private set; }
 
-        public FunctionStatementNode(string identifier, string[] parameters, StatementNode[] statements, ExpressionNode returnExpr, Position position) : base(position)
+        public FunctionStatementNode(string identifier, string[] parameters, StatementNode[] statements, ExpressionNode optReturnExpr, Position position) : base(position)
         {
             Identifier = identifier;
             Parameters = parameters;
             Statements = statements;
-            ReturnExpr = ReturnExpr;
+            OptReturnExpr = optReturnExpr;
         }
 
         public override bool Equals(object obj)
@@ -213,7 +213,7 @@ namespace IronJS.Interpreter
             return Identifier == other.Identifier
                 && Parameters.SequenceEqual(other.Parameters)
                 && Statements.SequenceEqual(other.Statements)
-                && ReturnExpr == other.ReturnExpr
+                && OptReturnExpr == other.OptReturnExpr
                 && base.Equals(other as ASTNode);
         }
 
@@ -224,7 +224,7 @@ namespace IronJS.Interpreter
             hash *= 31 + Identifier.GetHashCode();
             hash *= 31 + Parameters.GetHashCode();
             hash *= 31 + Statements.GetHashCode();
-            hash *= 31 + ReturnExpr.GetHashCode();
+            hash *= 31 + (OptReturnExpr == null ? 0 : OptReturnExpr.GetHashCode());
 
             return hash;
         }
@@ -337,34 +337,26 @@ namespace IronJS.Interpreter
         public ExpressionNode(Position position) : base(position) { }
     }
 
-    public class TermsExpressionNode : ExpressionNode
+    public class TermExpressionNode : ExpressionNode
     {
         public char OptionalFirstOp { get; private set; }
 
         public TermNode Term { get; private set; }
 
-        public char[] OptionalOps { get; private set; }
-
-        public TermNode[] OptionalTerms { get; private set; }
-
-        public TermsExpressionNode(char optionalFirstOp, TermNode term, char[] optionalOps, TermNode[] optionalTerms, Position position) : base(position)
+        public TermExpressionNode(char optionalFirstOp, TermNode term, Position position) : base(position)
         {
             OptionalFirstOp = optionalFirstOp;
             Term = term;
-            OptionalOps = optionalOps;
-            OptionalTerms = optionalTerms;
         }
 
         public override bool Equals(object obj)
         {
-            var other = obj as TermsExpressionNode;
+            var other = obj as TermExpressionNode;
 
             if (other == null) return false;
 
             return OptionalFirstOp == other.OptionalFirstOp
                 && Term == other.Term
-                && OptionalOps.SequenceEqual(other.OptionalOps)
-                && OptionalTerms.SequenceEqual(other.OptionalTerms)
                 && base.Equals(other as ASTNode);
         }
 
@@ -374,76 +366,6 @@ namespace IronJS.Interpreter
             hash *= 31 + base.GetHashCode();
             hash *= 31 + OptionalFirstOp.GetHashCode();
             hash *= 31 + Term.GetHashCode();
-            hash *= 31 + OptionalOps.GetHashCode();
-            hash *= 31 + OptionalTerms.GetHashCode();
-
-            return hash;
-        }
-    }
-
-    public class BooleanExpressionNode : ExpressionNode
-    {
-        public ExpressionNode FirstExpr { get; private set; }
-
-        public string Op { get; private set; }
-
-        public ExpressionNode SecondExpr { get; private set; }
-
-        public BooleanExpressionNode(ExpressionNode firstExpr, string op, ExpressionNode secondExpr, Position position) : base(position)
-        {
-            FirstExpr = firstExpr;
-            Op = op;
-            SecondExpr = secondExpr;
-        }
-
-        public override bool Equals(object obj)
-        {
-            var other = obj as BooleanExpressionNode;
-
-            if (other == null) return false;
-
-            return FirstExpr == other.FirstExpr
-                && Op == other.Op
-                && SecondExpr == other.SecondExpr
-                && base.Equals(other as ASTNode);
-        }
-
-        public override int GetHashCode()
-        {
-            int hash = 17;
-            hash *= 31 + base.GetHashCode();
-            hash *= 31 + FirstExpr.GetHashCode();
-            hash *= 31 + Op.GetHashCode();
-            hash *= 31 + SecondExpr.GetHashCode();
-
-            return hash;
-        }
-    }
-
-    public class FunctionCallExpressionNode : ExpressionNode
-    {
-        public FunctionCallNode FunctionCall { get; private set; }
-
-        public FunctionCallExpressionNode(FunctionCallNode functionCall) : base(functionCall.Position)
-        {
-            FunctionCall = functionCall;
-        }
-
-        public override bool Equals(object obj)
-        {
-            var other = obj as FunctionCallExpressionNode;
-
-            if (other == null) return false;
-
-            return FunctionCall == other.FunctionCall
-                && base.Equals(other as ASTNode);
-        }
-
-        public override int GetHashCode()
-        {
-            int hash = 17;
-            hash *= 31 + base.GetHashCode();
-            hash *= 31 + FunctionCall.GetHashCode();
 
             return hash;
         }
@@ -453,11 +375,11 @@ namespace IronJS.Interpreter
     {
         public FactorNode Factor { get; private set; }
 
-        public char[] OptionalOps { get; private set; }
+        public string[] OptionalOps { get; private set; }
 
         public FactorNode[] OptionalFactors { get; private set; }
 
-        public TermNode(FactorNode factor, char[] optionalOps, FactorNode[] optionalFactors, Position position) : base(position)
+        public TermNode(FactorNode factor, string[] optionalOps, FactorNode[] optionalFactors, Position position) : base(position)
         {
             Factor = factor;
             OptionalOps = optionalOps;
@@ -572,6 +494,35 @@ namespace IronJS.Interpreter
             int hash = 17;
             hash *= 31 + base.GetHashCode();
             hash *= 31 + Value.GetHashCode();
+
+            return hash;
+        }
+    }
+
+    public class FunctionCallFactorNode : FactorNode
+    {
+        public FunctionCallNode FunctionCall { get; private set; }
+
+        public FunctionCallFactorNode(FunctionCallNode functionCall) : base(functionCall.Position)
+        {
+            FunctionCall = functionCall;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as FunctionCallFactorNode;
+
+            if (other == null) return false;
+
+            return FunctionCall == other.FunctionCall
+                && base.Equals(other as ASTNode);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash *= 31 + base.GetHashCode();
+            hash *= 31 + FunctionCall.GetHashCode();
 
             return hash;
         }

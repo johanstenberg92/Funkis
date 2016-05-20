@@ -28,22 +28,21 @@ statement =
     "var" ident "=" expression ";"
 	| "if" "(" expression ")" ( "{" statement { statement } "}" | statement )
 	| "while" "(" expression ")" ( "{" statement { statement } "}" | statement )
+	| "function" ident "(" [ ident { "," ident } ] } ")" "{" statement { statement } [ "return" expression ";" ] "}"
 	| ident "=" expression ";"
-	| "function" ident "(" [ ident { "," ident } ] } ")" "{" statement { statement } "return" expression ";" "}"
-	| ident ("+=" | "-=" | "/=" | "*=") expression ";"
 	| function_call ";"
+	| ident ("+=" | "-=" | "/=" | "*=") expression ";"
 
 expression = 
-    ["+" | "-"] term { ("+" | "-") term }
-	| expression ("==" | ">=" | "<=" | "!=" | "<" | ">" | "||" | "&&") expression
-	| function_call
+    ["+" | "-"] term
 
 function_call = ident "(" [ expression { "," expression } ] ")"
 
-term = factor { ("*" | "/") factor }
+term = factor { ("*" | "/" | "+" | "-" | "==" | ">=" | "<=" | "!=" | "<" | ">" | "||" | "&&" ) factor }
 
 factor =
    ident
+   | function_call
    | number
    | "(" expression ")"
 ```

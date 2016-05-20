@@ -22,6 +22,7 @@ namespace IronJS.Interpreter
         public static SymbolToken ClosingBracket = new SymbolToken();
         public static SymbolToken Dot = new SymbolToken();
         public static SymbolToken SemiColon = new SymbolToken();
+        public static SymbolToken Comma = new SymbolToken();
 
         public static Dictionary<char, SymbolToken> OneCharacterSymbolTokens = new Dictionary<char, SymbolToken>()
         {
@@ -37,7 +38,8 @@ namespace IronJS.Interpreter
             { '{', Bracket },
             { '}', ClosingBracket },
             { '.', Dot },
-            { ';', SemiColon }
+            { ';', SemiColon },
+            { ',', Comma}
         };
 
         public static SymbolToken Equal = new SymbolToken();
@@ -49,7 +51,7 @@ namespace IronJS.Interpreter
         public static SymbolToken Or = new SymbolToken();
         public static SymbolToken And = new SymbolToken();
         public static SymbolToken IncrementWith = new SymbolToken();
-        public static SymbolToken DecrementWIth = new SymbolToken();
+        public static SymbolToken DecrementWith = new SymbolToken();
         public static SymbolToken DivideWith = new SymbolToken();
         public static SymbolToken MultiplyWith = new SymbolToken();
 
@@ -64,7 +66,7 @@ namespace IronJS.Interpreter
             { "||", Or },
             { "&&", And },
             { "+=", IncrementWith },
-            { "-=", DecrementWIth },
+            { "-=", DecrementWith },
             { "/=", DivideWith },
             { "*=", MultiplyWith }
         };
