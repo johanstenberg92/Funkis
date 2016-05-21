@@ -1,11 +1,11 @@
 ﻿var a = 0;
 var b = 1;
 
-if (a) {
+if (1) {
     var c = 1;
-} else if (b) {
+} else if (2) {
     var d = 1;
-} else if (b != 1) {
+} else if (3) {
     var e = 1;
 } else {
     var f = 1;
