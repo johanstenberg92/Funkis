@@ -74,7 +74,7 @@ namespace IronJS.Interpreter
 
                 return new VarStatementNode(identifier, expression, position);
             }
-
+            
             Token[] conditionals = { KeywordToken.If, KeywordToken.While };
             var conditionalsIndex = FoundOneOf(conditionals);
 
@@ -98,10 +98,56 @@ namespace IronJS.Interpreter
                     statements = new StatementNode[] { Statement() };
                 }
 
-                if (conditionalsIndex == 0)
-                    return new IfStatementNode(expression, statements, position);
-                else
+                if (conditionalsIndex == 1)
                     return new WhileStatementNode(expression, statements, position);
+
+                var elseIfStatements = new List<Tuple<ExpressionNode, StatementNode[]>>();
+
+                var foundElse = Found(KeywordToken.Else);
+                var foundIf = Found(KeywordToken.If);
+
+                while (foundElse && foundIf)
+                {
+                    Expect(SymbolToken.Parenthesis);
+                    var expr = Expression();
+                    Expect(SymbolToken.ClosingParenthesis);
+
+                    StatementNode[] stmts = null;
+
+                    if (Found(SymbolToken.Bracket))
+                    {
+                        stmts = Statements();
+                        Expect(SymbolToken.ClosingBracket);
+                    }
+                    else
+                    {
+                        stmts = new StatementNode[] { Statement() };
+                    }
+
+                    var tuple = new Tuple<ExpressionNode, StatementNode[]>(expr, stmts);
+
+                    elseIfStatements.Add(tuple);
+
+                    foundElse = Found(KeywordToken.Else);
+                    foundIf = Found(KeywordToken.If);
+                }
+
+                StatementNode[] elseStatements = new StatementNode[0];
+
+                if (foundElse)
+                {
+                    if (Found(SymbolToken.Bracket))
+                    {
+                        elseStatements = Statements();
+                        Expect(SymbolToken.ClosingBracket);
+                    }
+                    else
+                    {
+                        elseStatements = new StatementNode[] { Statement() };
+                    }
+                }
+
+                return new IfStatementNode(expression, statements, elseIfStatements.ToArray(), elseStatements, position);
             }
             else if (Found(KeywordToken.Function))
             {

@@ -104,10 +104,16 @@ namespace IronJS.Interpreter
 
         public StatementNode[] Statements { get; private set; }
 
-        public IfStatementNode(ExpressionNode expression, StatementNode[] statements, Position position) : base(position)
+        public Tuple<ExpressionNode, StatementNode[]>[] ElseIfStatements { get; private set; }
+
+        public StatementNode[] ElseStatements { get; private set; }
+
+        public IfStatementNode(ExpressionNode expression, StatementNode[] statements, Tuple<ExpressionNode, StatementNode[]>[] elseIfStatements, StatementNode[] elseStatements, Position position) : base(position)
         {
             Expression = expression;
             Statements = statements;
+            ElseIfStatements = elseIfStatements;
+            ElseStatements = elseStatements;
         }
 
         public override bool Equals(object obj)
@@ -118,6 +124,8 @@ namespace IronJS.Interpreter
 
             return Expression.Equals(other.Expression)
                 && Statements.SequenceEqual(other.Statements)
+                && ElseIfStatements.SequenceEqual(other.ElseIfStatements)
+                && ElseStatements.SequenceEqual(other.ElseStatements)
                 && base.Equals(other);
         }
 
@@ -127,6 +135,8 @@ namespace IronJS.Interpreter
             hash *= 31 + base.GetHashCode();
             hash *= 31 + Expression.GetHashCode();
             hash *= 31 + Statements.GetHashCode();
+            hash *= 31 + ElseIfStatements.GetHashCode();
+            hash *= 31 + ElseStatements.GetHashCode();
 
             return hash;
         }

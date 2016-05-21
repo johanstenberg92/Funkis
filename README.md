@@ -24,10 +24,12 @@ Initially, only a small subset of javascript will be supported.
 ```
 program = statement { statement }
 
+block = ( "{" statement { statement } "}" | statement )
+
 statement =
     "var" ident "=" expression ";"
-	| "if" "(" expression ")" ( "{" statement { statement } "}" | statement )
-	| "while" "(" expression ")" ( "{" statement { statement } "}" | statement )
+	| "if" "(" expression ")" block { "else" "if" "(" expression ")" block) } ["else" block]
+	| "while" "(" expression ")" block
 	| "function" ident "(" [ ident { "," ident } ] } ")" "{" statement { statement } [ "return" expression ";" ] "}"
 	| property "=" expression ";"
 	| function_call ";"
