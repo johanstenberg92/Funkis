@@ -333,7 +333,231 @@ namespace IronJSTests.Interpreter
                 },
                 new Position(0, 0)
             );
+
             var text = TestFilesHelper.ReadIfElseIfElseTestFile();
+
+            var parser = new Parser(new Scanner(text));
+
+            var actualAST = parser.Parse();
+
+            Assert.AreEqual(expectedAST, actualAST);
+        }
+
+        [TestMethod]
+        [DeploymentItem(@"TestFiles\while.js")]
+        public void ParseWhileTest()
+        {
+            var expectedAST = new ProgramNode(
+                new StatementNode[] {
+                    new VarStatementNode(
+                        "a",
+                        new TermExpressionNode(
+                            unchecked ((char) -1),
+                            new TermNode(
+                                new NumberFactorNode(
+                                    5,
+                                    new Position(8, 0)
+                                ),
+                                new string[] { },
+                                new FactorNode[] { },
+                                new Position(8, 0)
+                            ),
+                            new Position(8, 0)
+                        ),
+                        new Position(0, 0)
+                    ),
+                    new WhileStatementNode(
+                        new TermExpressionNode(
+                            unchecked ((char) -1),
+                            new TermNode(
+                                new PropertyFactorNode(
+                                    new PropertyNode(
+                                        new string[] { "a" },
+                                        new Position(7, 2)
+                                    ),
+                                    new Position(7, 2)
+                                ),
+                                new string[] { "!=" },
+                                new FactorNode[] {
+                                    new NumberFactorNode(
+                                        6,
+                                        new Position(12, 2)
+                                    )
+                                },
+                                new Position(7, 2)
+                            ),
+                            new Position(7, 2)
+                        ),
+                        new StatementNode[] {
+                            new FunctionCallStatementNode(
+                                new FunctionCallNode(
+                                    new PropertyNode(
+                                        new string[] { "who", "is", "john", "galt" },
+                                        new Position(4, 3)
+                                    ),
+                                    new ExpressionNode[] { },
+                                    new Position(4, 3)
+                                )
+                            )
+                        },
+                        new Position(0, 2)
+                    ),
+                    new WhileStatementNode(
+                        new TermExpressionNode(
+                            unchecked ((char) -1),
+                            new TermNode(
+                                new PropertyFactorNode(
+                                    new PropertyNode(
+                                        new string[] { "a" },
+                                        new Position(7, 6)
+                                    ),
+                                    new Position(7, 6)
+                                ),
+                                new string[] { },
+                                new FactorNode[] { },
+                                new Position(7, 6)
+                            ),
+                            new Position(7, 6)
+                        ),
+                        new StatementNode[] {
+                            new OperatorEqualStatementNode(
+                                new PropertyNode(
+                                    new string[] { "a" },
+                                    new Position(10, 6)
+                                ),
+                                '-',
+                                new TermExpressionNode(
+                                    unchecked ((char) -1),
+                                    new TermNode(
+                                        new NumberFactorNode(
+                                            1,
+                                            new Position(15, 6)
+                                        ),
+                                        new string[] { },
+                                        new FactorNode[] { },
+                                        new Position(15, 6)
+                                    ),
+                                    new Position(15, 6)
+                                ),
+                                new Position(10, 6)
+                            )
+                        },
+                        new Position(0, 6)
+                    )
+                },
+                new Position(0, 0)
+            );
+
+            var text = TestFilesHelper.ReadWhileTestFile();
+
+            var parser = new Parser(new Scanner(text));
+
+            var actualAST = parser.Parse();
+
+            Assert.AreEqual(expectedAST, actualAST);
+        }
+
+        [TestMethod]
+        [DeploymentItem(@"TestFiles\nested-expressions.js")]
+        public void ParseNestedExpressionsTest()
+        {
+            var expectedAST = new ProgramNode(
+                new StatementNode[] {
+                    new VarStatementNode(
+                        "a",
+                        new TermExpressionNode(
+                            unchecked ((char) -1),
+                            new TermNode(
+                                new ExpressionFactorNode(
+                                    new TermExpressionNode(
+                                        unchecked ((char) -1),
+                                        new TermNode(
+                                            new NumberFactorNode(
+                                                5,
+                                                new Position(9, 0)
+                                            ),
+                                            new string[] { "&&" },
+                                            new FactorNode[] {
+                                                new NumberFactorNode(
+                                                    4,
+                                                    new Position(14, 0)
+                                                )
+                                            },
+                                            new Position(9, 0)
+                                        ),
+                                        new Position(9, 0)
+                                    ),
+                                    new Position(8, 0)
+                                ),
+                                new string[] { "||" },
+                                new FactorNode[] {
+                                    new NumberFactorNode(
+                                        6,
+                                        new Position(20, 0)
+                                    )
+                                },
+                                new Position(8, 0)
+                            ),
+                            new Position(8, 0)
+                        ),
+                        new Position(0, 0)
+                    ),
+                    new VarStatementNode(
+                        "b",
+                        new TermExpressionNode(
+                            unchecked ((char) -1),
+                            new TermNode(
+                                new ExpressionFactorNode(
+                                    new TermExpressionNode(
+                                        unchecked ((char) -1),
+                                        new TermNode(
+                                            new NumberFactorNode(
+                                                6,
+                                                new Position(9, 2)
+                                            ),
+                                            new string[] { "!=" },
+                                            new FactorNode[] {
+                                                new ExpressionFactorNode(
+                                                    new TermExpressionNode(
+                                                        unchecked ((char) -1),
+                                                        new TermNode(
+                                                            new NumberFactorNode(
+                                                                8,
+                                                                new Position(15, 2)
+                                                            ),
+                                                            new string[] { "!=" },
+                                                            new FactorNode[] {
+                                                                new NumberFactorNode(
+                                                                    7,
+                                                                    new Position(20, 2)
+                                                                )
+                                                            },
+                                                            new Position(15, 2)
+                                                        ),
+                                                        new Position(15, 2)
+                                                    ),
+                                                    new Position(14, 2)
+                                                )
+                                            },
+                                            new Position(9, 2)
+                                        ),
+                                        new Position(9, 2)
+                                    ),
+                                    new Position(8, 2)
+                                ),
+                                new string[] { },
+                                new FactorNode[] { },
+                                new Position(8, 2)
+                            ),
+                            new Position(8, 2)
+                        ),
+                        new Position(0, 2)
+                    )
+                },
+                new Position(0, 0)
+            );
+
+            var text = TestFilesHelper.ReadNestedExpressionsTestFile();
 
             var parser = new Parser(new Scanner(text));
 

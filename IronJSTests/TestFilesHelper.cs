@@ -13,5 +13,15 @@ namespace IronJSTests
         {
             return File.ReadAllText("if-else-if-else.js");
         }
+
+        public static string ReadWhileTestFile()
+        {
+            return File.ReadAllText("while.js");
+        }
+
+        public static string ReadNestedExpressionsTestFile()
+        {
+            return File.ReadAllText("nested-expressions.js");
+        }
     }
 }
