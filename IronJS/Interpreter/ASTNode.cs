@@ -70,7 +70,10 @@ namespace IronJS.Interpreter
 
         public ExpressionNode Expression { get; private set; }
 
-        public VarStatementNode(string identifier, ExpressionNode expression, Position position) : base(position)
+        public VarStatementNode(
+            string identifier, 
+            ExpressionNode expression, 
+            Position position) : base(position)
         {
             Identifier = identifier;
             Expression = expression;
@@ -104,14 +107,23 @@ namespace IronJS.Interpreter
 
         public StatementNode[] Statements { get; private set; }
 
-        public Tuple<ExpressionNode, StatementNode[]>[] ElseIfStatements { get; private set; }
+        public ExpressionNode[] ElseIfExpressions { get; private set; }
+
+        public StatementNode[][] ElseIfStatements { get; private set; }
 
         public StatementNode[] ElseStatements { get; private set; }
 
-        public IfStatementNode(ExpressionNode expression, StatementNode[] statements, Tuple<ExpressionNode, StatementNode[]>[] elseIfStatements, StatementNode[] elseStatements, Position position) : base(position)
+        public IfStatementNode(
+            ExpressionNode expression, 
+            StatementNode[] statements, 
+            ExpressionNode[] elseIfExpressions, 
+            StatementNode[][] elseIfStatements, 
+            StatementNode[] elseStatements, 
+            Position position) : base(position)
         {
             Expression = expression;
             Statements = statements;
+            ElseIfExpressions = elseIfExpressions;
             ElseIfStatements = elseIfStatements;
             ElseStatements = elseStatements;
         }
@@ -122,9 +134,15 @@ namespace IronJS.Interpreter
 
             if (other == null) return false;
 
-            return Expression.Equals(other.Expression)
+            var elseIfEquals = ElseIfStatements.Length == other.ElseIfStatements.Length
+                && ElseIfStatements.Zip(other.ElseIfStatements, (a, b) => a.SequenceEqual(b))
+                    .Aggregate((isEq, next) => isEq && next);
+
+
+
+            return elseIfEquals
+                && Expression.Equals(other.Expression)
                 && Statements.SequenceEqual(other.Statements)
-                && ElseIfStatements.SequenceEqual(other.ElseIfStatements)
                 && ElseStatements.SequenceEqual(other.ElseStatements)
                 && base.Equals(other);
         }
@@ -220,7 +238,12 @@ namespace IronJS.Interpreter
 
         public ExpressionNode OptReturnExpr { get; private set; }
 
-        public FunctionStatementNode(string identifier, string[] parameters, StatementNode[] statements, ExpressionNode optReturnExpr, Position position) : base(position)
+        public FunctionStatementNode(
+            string identifier,
+            string[] parameters, 
+            StatementNode[] statements, 
+            ExpressionNode optReturnExpr, 
+            Position position) : base(position)
         {
             Identifier = identifier;
             Parameters = parameters;
@@ -262,7 +285,11 @@ namespace IronJS.Interpreter
 
         public ExpressionNode Expression { get; private set; }
 
-        public OperatorEqualStatementNode(PropertyNode property, char op, ExpressionNode expression, Position position) : base(position)
+        public OperatorEqualStatementNode(
+            PropertyNode property, 
+            char op, 
+            ExpressionNode expression, 
+            Position position) : base(position)
         {
             Property = property;
             Op = op;

@@ -45,6 +45,18 @@ namespace IronJS.Interpreter
 
             if (c == Scanner._eof) return SymbolToken.EOF;
 
+            char[] next = { c, _scanner.PeekWithOffset(2) };
+
+            var possibleTwoCharacterSymbols = new string(next);
+
+            if (SymbolToken.TwoCharacterSymbolTokens.ContainsKey(possibleTwoCharacterSymbols))
+            {
+                _scanner.Read();
+                _scanner.Read();
+
+                return SymbolToken.TwoCharacterSymbolTokens[possibleTwoCharacterSymbols];
+            }
+
             if (SymbolToken.OneCharacterSymbolTokens.ContainsKey(c))
             {
                 return SymbolToken.OneCharacterSymbolTokens[_scanner.Read()];
@@ -102,15 +114,6 @@ namespace IronJS.Interpreter
                 }
                 
                 return new StringToken(new string(chars.ToArray()));
-            }
-
-            char[] next = { _scanner.Peek(), _scanner.PeekWithOffset(1) };
-            
-            var possibleTwoCharacterSymbols = new string(next);
-
-            if (SymbolToken.TwoCharacterSymbolTokens.ContainsKey(possibleTwoCharacterSymbols))
-            {
-                return SymbolToken.TwoCharacterSymbolTokens[possibleTwoCharacterSymbols];
             }
 
             var position = _scanner.PeekPosition();

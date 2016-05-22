@@ -80,7 +80,7 @@ namespace IronJSTests.Interpreter
                             unchecked ((char) -1),
                             new TermNode(
                                 new NumberFactorNode(
-                                    1,
+                                    0,
                                     new Position(8, 0)
                                 ),
                                 new string[] { },
@@ -141,75 +141,73 @@ namespace IronJSTests.Interpreter
                                 new Position(4, 4)
                             )
                         },
-                        new Tuple<ExpressionNode, StatementNode[]>[] {
-                            new Tuple<ExpressionNode, StatementNode[]>(
-                                new TermExpressionNode(
-                                    unchecked ((char) -1),
-                                    new TermNode(
-                                        new NumberFactorNode(
-                                            2,
-                                            new Position(11, 5)
-                                        ),
-                                        new string[] { },
-                                        new FactorNode[] { },
+                        new ExpressionNode[] {
+                            new TermExpressionNode(
+                                unchecked ((char) -1),
+                                new TermNode(
+                                    new NumberFactorNode(
+                                        2,
                                         new Position(11, 5)
                                     ),
+                                    new string[] { },
+                                    new FactorNode[] { },
                                     new Position(11, 5)
                                 ),
-                                new StatementNode[] {
-                                    new VarStatementNode(
-                                        "d",
-                                        new TermExpressionNode(
-                                            unchecked ((char) -1),
-                                            new TermNode(
-                                                new NumberFactorNode(
-                                                    1,
-                                                    new Position(12, 6)
-                                                ),
-                                                new string[] { },
-                                                new FactorNode[] { },
-                                                new Position(12, 6)
-                                            ),
-                                            new Position(12, 6)
-                                        ),
-                                        new Position(4, 6)
-                                    )
-                                }
+                                new Position(11, 5)
                             ),
-                            new Tuple<ExpressionNode, StatementNode[]>(
-                                new TermExpressionNode(
-                                    unchecked ((char) -1),
-                                    new TermNode(
-                                        new NumberFactorNode(
-                                            3,
-                                            new Position(11, 6)
-                                        ),
-                                        new string[] { },
-                                        new FactorNode[] { },
+                            new TermExpressionNode(
+                                unchecked ((char) -1),
+                                new TermNode(
+                                    new NumberFactorNode(
+                                        3,
                                         new Position(11, 6)
                                     ),
+                                    new string[] { },
+                                    new FactorNode[] { },
                                     new Position(11, 6)
                                 ),
-                                new StatementNode[] {
-                                    new VarStatementNode(
-                                        "e",
-                                        new TermExpressionNode(
-                                            unchecked ((char) -1),
-                                            new TermNode(
-                                                new NumberFactorNode(
-                                                    1,
-                                                    new Position(12, 8)
-                                                ),
-                                                new string[] { },
-                                                new FactorNode[] { },
+                                new Position(11, 6)
+                            )
+                        },
+                        new StatementNode[][] {
+                            new StatementNode[] {
+                                new VarStatementNode(
+                                    "d",
+                                    new TermExpressionNode(
+                                        unchecked ((char) -1),
+                                        new TermNode(
+                                            new NumberFactorNode(
+                                                1,
+                                                new Position(12, 6)
+                                            ),
+                                            new string[] { },
+                                            new FactorNode[] { },
+                                            new Position(12, 6)
+                                        ),
+                                        new Position(12, 6)
+                                    ),
+                                    new Position(4, 6)
+                                )
+                            },
+                            new StatementNode[] {
+                                new VarStatementNode(
+                                    "e",
+                                    new TermExpressionNode(
+                                        unchecked ((char) -1),
+                                        new TermNode(
+                                            new NumberFactorNode(
+                                                1,
                                                 new Position(12, 8)
                                             ),
+                                            new string[] { },
+                                            new FactorNode[] { },
                                             new Position(12, 8)
                                         ),
-                                        new Position(4, 8)
-                                    )
-                                }
-                            ),
+                                        new Position(12, 8)
+                                    ),
+                                    new Position(4, 8)
+                                )
+                            }
                         },
                         new StatementNode[] {
                             new VarStatementNode(
@@ -269,48 +267,48 @@ namespace IronJSTests.Interpreter
                                 new Position(7, 13)
                             )
                         },
-                        new Tuple<ExpressionNode, StatementNode[]>[] {
-                            new Tuple<ExpressionNode, StatementNode[]>(
-                                new TermExpressionNode(
-                                    unchecked ((char) -1),
-                                    new TermNode(
-                                        new NumberFactorNode(
-                                            2,
-                                            new Position(9, 14)
-                                        ),
-                                        new string[] { },
-                                        new FactorNode[] { },
+                        new ExpressionNode[] {
+                            new TermExpressionNode(
+                                unchecked ((char) -1),
+                                new TermNode(
+                                    new NumberFactorNode(
+                                        2,
                                         new Position(9, 14)
                                     ),
+                                    new string[] { },
+                                    new FactorNode[] { },
                                     new Position(9, 14)
                                 ),
-                                new StatementNode[] {
-                                    new OperatorEqualStatementNode(
-                                        new PropertyNode(
-                                            new string[] { "a" },
-                                            new Position(12, 13)
-                                        ),
-                                        '+',
-                                        new TermExpressionNode(
-                                            unchecked ((char) -1),
-                                            new TermNode(
-                                                new NumberFactorNode(
-                                                    2,
-                                                    new Position(17, 13)
-                                                ),
-                                                new string[] { },
-                                                new FactorNode[] { },
-                                                new Position(17, 13)
+                                new Position(9, 14)
+                            ),
+                        },
+                        new StatementNode[][] {
+                            new StatementNode[] {
+                                new OperatorEqualStatementNode(
+                                    new PropertyNode(
+                                        new string[] { "a" },
+                                        new Position(12, 14)
+                                    ),
+                                    '+',
+                                    new TermExpressionNode(
+                                        unchecked ((char) -1),
+                                        new TermNode(
+                                            new NumberFactorNode(
+                                                2,
+                                                new Position(17, 14)
                                             ),
-                                            new Position(17, 13)
+                                            new string[] { },
+                                            new FactorNode[] { },
+                                            new Position(17, 14)
                                         ),
-                                        new Position(12, 13)
-                                    )
-                                }
-                            )
+                                        new Position(17, 14)
+                                    ),
+                                    new Position(12, 14)
+                                )
+                            }
                         },
                         new StatementNode[] { },
-                        new Position(0, 14)
+                        new Position(0, 13)
                     ),
                     new AssignmentStatementNode(
                         new PropertyNode(

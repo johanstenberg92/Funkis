@@ -72,6 +72,8 @@ namespace IronJS.Interpreter
 
                 var expression = Expression();
 
+                Expect(SymbolToken.SemiColon);
+
                 return new VarStatementNode(identifier, expression, position);
             }
             
@@ -101,7 +103,8 @@ namespace IronJS.Interpreter
                 if (conditionalsIndex == 1)
                     return new WhileStatementNode(expression, statements, position);
 
-                var elseIfStatements = new List<Tuple<ExpressionNode, StatementNode[]>>();
+                var elseIfExpressions = new List<ExpressionNode>();
+                var elseIfStatements = new List<StatementNode[]>();
 
                 var foundElse = Found(KeywordToken.Else);
                 var foundIf = Found(KeywordToken.If);
@@ -124,9 +127,8 @@ namespace IronJS.Interpreter
                         stmts = new StatementNode[] { Statement() };
                     }
 
-                    var tuple = new Tuple<ExpressionNode, StatementNode[]>(expr, stmts);
-
-                    elseIfStatements.Add(tuple);
+                    elseIfExpressions.Add(expr);
+                    elseIfStatements.Add(stmts);
 
                     foundElse = Found(KeywordToken.Else);
                     foundIf = Found(KeywordToken.If);
@@ -147,7 +149,14 @@ namespace IronJS.Interpreter
                     }
                 }
 
-                return new IfStatementNode(expression, statements, elseIfStatements.ToArray(), elseStatements, position);
+                return new IfStatementNode(
+                    expression, 
+                    statements, 
+                    elseIfExpressions.ToArray(),
+                    elseIfStatements.ToArray(),
+                    elseStatements,
+                    position
+                );
             }
             else if (Found(KeywordToken.Function))
             {
@@ -212,7 +221,7 @@ namespace IronJS.Interpreter
                         SymbolToken.MultiplyWith,
                         SymbolToken.DivideWith
                     };
-
+                    
                     var idx = ExpectOneOf(withOperations);
 
                     var expression = Expression();

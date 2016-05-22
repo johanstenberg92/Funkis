@@ -55,7 +55,7 @@ namespace IronJS.Interpreter
 
         public char Peek() => PeekWithOffset(1);
 
-        public char PeekWithOffset(int offset) => ReadNextChar(_position + 1);
+        public char PeekWithOffset(int offset) => ReadNextChar(_position + offset);
 
         private char ReadNextChar() => ReadNextChar(_position);
 
