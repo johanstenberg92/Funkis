@@ -40,13 +40,9 @@ namespace IronJS.Interpreter
 
         private ProgramNode program()
         {
-            var position = Position();
             var statements = Statements();
 
-            return new ProgramNode(
-                statements, 
-                statements.Length == 0 ? position : statements[0].Position
-            );
+            return new ProgramNode(statements);
         }
 
         private StatementNode[] Statements()
@@ -213,8 +209,8 @@ namespace IronJS.Interpreter
                 }
                 else if (Found(SymbolToken.Parenthesis))
                 {
-                    var functionCall = FunctionCall(maybeProperty, position);
-                    return new FunctionCallStatementNode(functionCall);
+                    var tuple = FunctionCallTuple(maybeProperty, position);
+                    return new FunctionCallStatementNode(tuple.Item1, tuple.Item2);
                 }
                 else
                 {
@@ -238,7 +234,7 @@ namespace IronJS.Interpreter
                     else if (idx == 2) op = '*';
                     else op = '/';
 
-                    return new OperatorEqualStatementNode(maybeProperty, op, expression, position);
+                    return new OperatorEqualStatementNode(maybeProperty, op, expression);
                 }
             }
 
@@ -299,7 +295,7 @@ namespace IronJS.Interpreter
                 idx = FoundOneOf(infixOpsKeys);
             }
 
-            return new TermNode(factor, optionalOps.ToArray(), optionalFactors.ToArray(), position);
+            return new TermNode(factor, optionalOps.ToArray(), optionalFactors.ToArray());
         }
 
         private FactorNode Factor()
@@ -312,11 +308,11 @@ namespace IronJS.Interpreter
             {
                 if (Found(SymbolToken.Parenthesis))
                 {
-                    var functionCall = FunctionCall(maybeProperty, position);
-                    return new FunctionCallFactorNode(functionCall);
+                    var tuple = FunctionCallTuple(maybeProperty, position);
+                    return new FunctionCallFactorNode(tuple.Item1, tuple.Item2);
                 }
 
-                return new PropertyFactorNode(maybeProperty, position);
+                return new PropertyFactorNode(maybeProperty);
             }
 
             var maybeNumber = FoundNumber();
@@ -476,7 +472,7 @@ namespace IronJS.Interpreter
             return res;
         }
 
-        private FunctionCallNode FunctionCall(PropertyNode property, Position position)
+        private Tuple<PropertyNode, ExpressionNode[]> FunctionCallTuple(PropertyNode property, Position position)
         {
             var parameters = new List<ExpressionNode>();
 
@@ -500,7 +496,7 @@ namespace IronJS.Interpreter
             }
             Expect(SymbolToken.SemiColon);
 
-            return new FunctionCallNode(property, parameters.ToArray(), position);
+            return new Tuple<PropertyNode, ExpressionNode[]>(property, parameters.ToArray());
         }
     }
 }

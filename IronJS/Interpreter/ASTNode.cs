@@ -34,7 +34,7 @@ namespace IronJS.Interpreter
     {
         public StatementNode[] Statements { get; private set; }
 
-        public ProgramNode(StatementNode[] statements, Position position) : base(position)
+        public ProgramNode(StatementNode[] statements) : base(new Position(0, 0))
         {
             Statements = statements;
         }
@@ -112,6 +112,34 @@ namespace IronJS.Interpreter
         public StatementNode[][] ElseIfStatements { get; private set; }
 
         public StatementNode[] ElseStatements { get; private set; }
+
+        public IfStatementNode(
+            ExpressionNode expression,
+            StatementNode[] statements,
+            Position position
+        ) : this(
+            expression,
+            statements,
+            new ExpressionNode[0],
+            new StatementNode[0][],
+            new StatementNode[0],
+            position
+        )
+        { }
+
+        public IfStatementNode(
+            ExpressionNode expression,
+            StatementNode[] statements,
+            StatementNode[] elseStatements,
+            Position position
+        ) : this(
+            expression,
+            statements,
+            new ExpressionNode[0],
+            new StatementNode[0][],
+            elseStatements,
+            position
+        ) { }
 
         public IfStatementNode(
             ExpressionNode expression, 
@@ -240,6 +268,19 @@ namespace IronJS.Interpreter
 
         public FunctionStatementNode(
             string identifier,
+            string[] parameters,
+            StatementNode[] statements,
+            Position position
+        ) : this(
+            identifier,
+            parameters,
+            statements,
+            null,
+            position
+        ) { }
+
+        public FunctionStatementNode(
+            string identifier,
             string[] parameters, 
             StatementNode[] statements, 
             ExpressionNode optReturnExpr, 
@@ -288,8 +329,7 @@ namespace IronJS.Interpreter
         public OperatorEqualStatementNode(
             PropertyNode property, 
             char op, 
-            ExpressionNode expression, 
-            Position position) : base(position)
+            ExpressionNode expression) : base(property.Position)
         {
             Property = property;
             Op = op;
@@ -324,9 +364,9 @@ namespace IronJS.Interpreter
     {
         public FunctionCallNode FunctionCall { get; private set; }
 
-        public FunctionCallStatementNode(FunctionCallNode functionCall) : base(functionCall.Position)
+        public FunctionCallStatementNode(PropertyNode property, ExpressionNode[] parameters) : base(property.Position)
         {
-            FunctionCall = functionCall;
+            FunctionCall = new FunctionCallNode(property, parameters);
         }
 
         public override bool Equals(object obj)
@@ -355,7 +395,7 @@ namespace IronJS.Interpreter
 
         public ExpressionNode[] Parameters { get; private set; }
 
-        public FunctionCallNode(PropertyNode property, ExpressionNode[] parameters, Position position) : base(position)
+        public FunctionCallNode(PropertyNode property, ExpressionNode[] parameters) : base(property.Position)
         {
             Property = property;
             Parameters = parameters;
@@ -394,6 +434,14 @@ namespace IronJS.Interpreter
 
         public TermNode Term { get; private set; }
 
+        public TermExpressionNode(
+            TermNode term
+        ) : this(
+            unchecked ((char) - 1),
+            term,
+            term.Position
+        ) { }
+
         public TermExpressionNode(char optionalFirstOp, TermNode term, Position position) : base(position)
         {
             OptionalFirstOp = optionalFirstOp;
@@ -430,7 +478,15 @@ namespace IronJS.Interpreter
 
         public FactorNode[] OptionalFactors { get; private set; }
 
-        public TermNode(FactorNode factor, string[] optionalOps, FactorNode[] optionalFactors, Position position) : base(position)
+        public TermNode(
+            FactorNode factor
+        ) : this(
+            factor,
+            new string[0],
+            new FactorNode[0]
+        ) { }
+
+        public TermNode(FactorNode factor, string[] optionalOps, FactorNode[] optionalFactors) : base(factor.Position)
         {
             Factor = factor;
             OptionalOps = optionalOps;
@@ -470,7 +526,7 @@ namespace IronJS.Interpreter
     {
         public PropertyNode Property { get; private set; }
 
-        public PropertyFactorNode(PropertyNode property, Position position) : base(position)
+        public PropertyFactorNode(PropertyNode property) : base(property.Position)
         {
             Property = property;
         }
@@ -586,9 +642,9 @@ namespace IronJS.Interpreter
     {
         public FunctionCallNode FunctionCall { get; private set; }
 
-        public FunctionCallFactorNode(FunctionCallNode functionCall) : base(functionCall.Position)
+        public FunctionCallFactorNode(PropertyNode property, ExpressionNode[] expressions) : base(property.Position)
         {
-            FunctionCall = functionCall;
+            FunctionCall = new FunctionCallNode(property, expressions);
         }
 
         public override bool Equals(object obj)

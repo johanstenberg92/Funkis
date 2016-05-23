@@ -18,45 +18,33 @@ namespace IronJSTests.Interpreter
                         new string[] { },
                         new StatementNode[] {
                             new FunctionCallStatementNode(
-                                new FunctionCallNode(
-                                    new PropertyNode(
-                                        new string[] { "console", "log" },
-                                        new Position(4, 1)
-                                    ),
-                                    new ExpressionNode[] {
-                                        new TermExpressionNode(
-                                            unchecked ((char) -1),
-                                            new TermNode(
-                                                new StringFactorNode(
-                                                    "hello world!",
-                                                    new Position(16, 1)
-                                                ),
-                                                new string[] { },
-                                                new FactorNode[] { },
-                                                new Position(16, 1)
-                                            ),
-                                            new Position(16, 1)
-                                        )
-                                    },
+                                new PropertyNode(
+                                    new string[] { "console", "log" },
                                     new Position(4, 1)
-                                )
+                                ),
+                                new ExpressionNode[] {
+                                    new TermExpressionNode(
+                                        new TermNode(
+                                            new StringFactorNode(
+                                                "hello world!",
+                                                new Position(16, 1)
+                                            )
+                                        )
+                                    )
+                                }
                             )
                         },
                         null,
                         new Position(0 ,0)
                     ),
                     new FunctionCallStatementNode(
-                        new FunctionCallNode(
-                            new PropertyNode(
-                                new string[] { "hello_world" },
-                                new Position(0, 4)
-                            ),
-                            new ExpressionNode[] { },
+                        new PropertyNode(
+                            new string[] { "hello_world" },
                             new Position(0, 4)
-                        )
+                        ),
+                        new ExpressionNode[] { }
                     )
-                },
-                new Position(0, 0)
+                }
             );
 
             var text = TestFilesHelper.ReadHelloWorldTestFile();
@@ -77,96 +65,66 @@ namespace IronJSTests.Interpreter
                     new VarStatementNode(
                         "a",
                         new TermExpressionNode(
-                            unchecked ((char) -1),
                             new TermNode(
                                 new NumberFactorNode(
                                     0,
                                     new Position(8, 0)
-                                ),
-                                new string[] { },
-                                new FactorNode[] { },
-                                new Position(8, 0)
-                            ),
-                            new Position(8, 0)
+                                )
+                            )
                         ),
                         new Position(0, 0)
                     ),
                     new VarStatementNode(
                         "b",
                         new TermExpressionNode(
-                            unchecked ((char) -1),
                             new TermNode(
                                 new NumberFactorNode(
                                     1,
                                     new Position(8, 1)
-                                ),
-                                new string[] { },
-                                new FactorNode[] { },
-                                new Position(8, 1)
-                            ),
-                            new Position(8, 1)
+                                )
+                            )
                         ),
                         new Position(0, 1)
                     ),
                     new IfStatementNode(
                         new TermExpressionNode(
-                            unchecked ((char) -1),
                             new TermNode(
                                 new NumberFactorNode(
                                     1,
                                     new Position(4, 3)
-                                ),
-                                new string[] { },
-                                new FactorNode[] { },
-                                new Position(4, 3)
-                            ),
-                            new Position(4, 3)
+                                )
+                            )
                         ),
                         new StatementNode[] {
                             new VarStatementNode(
                                 "c",
                                 new TermExpressionNode(
-                                    unchecked ((char) -1),
                                     new TermNode(
                                         new NumberFactorNode(
                                             1,
                                             new Position(12, 4)
-                                        ),
-                                        new string[] { },
-                                        new FactorNode[] { },
-                                        new Position(12, 4)
-                                    ),
-                                    new Position(12, 4)
+                                        )
+                                    )
                                 ),
                                 new Position(4, 4)
                             )
                         },
                         new ExpressionNode[] {
                             new TermExpressionNode(
-                                unchecked ((char) -1),
                                 new TermNode(
                                     new NumberFactorNode(
                                         2,
                                         new Position(11, 5)
-                                    ),
-                                    new string[] { },
-                                    new FactorNode[] { },
-                                    new Position(11, 5)
-                                ),
-                                new Position(11, 5)
+                                    )
+                                )
                             ),
                             new TermExpressionNode(
-                                unchecked ((char) -1),
                                 new TermNode(
                                     new NumberFactorNode(
                                         3,
                                         new Position(11, 6)
-                                    ),
-                                    new string[] { },
-                                    new FactorNode[] { },
-                                    new Position(11, 6)
-                                ),
-                                new Position(11, 6)
+                                    )
+                                )
                             )
                         },
                         new StatementNode[][] {
@@ -174,17 +132,12 @@ namespace IronJSTests.Interpreter
                                 new VarStatementNode(
                                     "d",
                                     new TermExpressionNode(
-                                        unchecked ((char) -1),
                                         new TermNode(
                                             new NumberFactorNode(
                                                 1,
                                                 new Position(12, 6)
-                                            ),
-                                            new string[] { },
-                                            new FactorNode[] { },
-                                            new Position(12, 6)
-                                        ),
-                                        new Position(12, 6)
+                                            )
+                                        )
                                     ),
                                     new Position(4, 6)
                                 )
@@ -193,17 +146,12 @@ namespace IronJSTests.Interpreter
                                 new VarStatementNode(
                                     "e",
                                     new TermExpressionNode(
-                                        unchecked ((char) -1),
                                         new TermNode(
                                             new NumberFactorNode(
                                                 1,
                                                 new Position(12, 8)
-                                            ),
-                                            new string[] { },
-                                            new FactorNode[] { },
-                                            new Position(12, 8)
-                                        ),
-                                        new Position(12, 8)
+                                            )
+                                        )
                                     ),
                                     new Position(4, 8)
                                 )
@@ -213,17 +161,12 @@ namespace IronJSTests.Interpreter
                             new VarStatementNode(
                                 "f",
                                 new TermExpressionNode(
-                                    unchecked ((char) -1),
                                     new TermNode(
                                         new NumberFactorNode(
                                             1,
                                             new Position(12, 10)
-                                        ),
-                                        new string[] { },
-                                        new FactorNode[] { },
-                                        new Position(12, 10)
-                                    ),
-                                    new Position(12, 10)
+                                        )
+                                    )
                                 ),
                                 new Position(4, 10)
                             )
@@ -232,17 +175,12 @@ namespace IronJSTests.Interpreter
                     ),
                     new IfStatementNode(
                         new TermExpressionNode(
-                            unchecked ((char) -1),
                             new TermNode(
                                 new NumberFactorNode(
                                     1,
                                     new Position(4, 13)
-                                ),
-                                new string[] { },
-                                new FactorNode[] { },
-                                new Position(4, 13)
-                            ),
-                            new Position(4, 13)
+                                )
+                            )
                         ),
                         new StatementNode[] {
                             new OperatorEqualStatementNode(
@@ -252,34 +190,23 @@ namespace IronJSTests.Interpreter
                                 ),
                                 '+',
                                 new TermExpressionNode(
-                                    unchecked ((char) -1),
                                     new TermNode(
                                         new NumberFactorNode(
                                             1,
                                             new Position(12, 13)
-                                        ),
-                                        new string[] { },
-                                        new FactorNode[] { },
-                                        new Position(12, 13)
-                                    ),
-                                    new Position(12, 13)
-                                ),
-                                new Position(7, 13)
+                                        )
+                                    )
+                                )
                             )
                         },
                         new ExpressionNode[] {
                             new TermExpressionNode(
-                                unchecked ((char) -1),
                                 new TermNode(
                                     new NumberFactorNode(
                                         2,
                                         new Position(9, 14)
-                                    ),
-                                    new string[] { },
-                                    new FactorNode[] { },
-                                    new Position(9, 14)
-                                ),
-                                new Position(9, 14)
+                                    )
+                                )
                             ),
                         },
                         new StatementNode[][] {
@@ -291,19 +218,13 @@ namespace IronJSTests.Interpreter
                                     ),
                                     '+',
                                     new TermExpressionNode(
-                                        unchecked ((char) -1),
                                         new TermNode(
                                             new NumberFactorNode(
                                                 2,
                                                 new Position(17, 14)
-                                            ),
-                                            new string[] { },
-                                            new FactorNode[] { },
-                                            new Position(17, 14)
-                                        ),
-                                        new Position(17, 14)
-                                    ),
-                                    new Position(12, 14)
+                                            )
+                                        )
+                                    )
                                 )
                             }
                         },
@@ -316,22 +237,16 @@ namespace IronJSTests.Interpreter
                             new Position(0, 16)
                         ),
                         new TermExpressionNode(
-                            unchecked ((char) -1),
                             new TermNode(
                                 new NumberFactorNode(
                                     5,
                                     new Position(4, 16)
-                                ),
-                                new string[] { },
-                                new FactorNode[] { },
-                                new Position(4, 16)
-                            ),
-                            new Position(4, 16)
+                                )
+                            )
                         ),
                         new Position(0, 16)
                     )
-                },
-                new Position(0, 0)
+                }
             );
 
             var text = TestFilesHelper.ReadIfElseIfElseTestFile();
@@ -352,30 +267,23 @@ namespace IronJSTests.Interpreter
                     new VarStatementNode(
                         "a",
                         new TermExpressionNode(
-                            unchecked ((char) -1),
                             new TermNode(
                                 new NumberFactorNode(
                                     5,
                                     new Position(8, 0)
-                                ),
-                                new string[] { },
-                                new FactorNode[] { },
-                                new Position(8, 0)
-                            ),
-                            new Position(8, 0)
+                                )
+                            )
                         ),
                         new Position(0, 0)
                     ),
                     new WhileStatementNode(
                         new TermExpressionNode(
-                            unchecked ((char) -1),
                             new TermNode(
                                 new PropertyFactorNode(
                                     new PropertyNode(
                                         new string[] { "a" },
                                         new Position(7, 2)
-                                    ),
-                                    new Position(7, 2)
+                                    )
                                 ),
                                 new string[] { "!=" },
                                 new FactorNode[] {
@@ -383,41 +291,30 @@ namespace IronJSTests.Interpreter
                                         6,
                                         new Position(12, 2)
                                     )
-                                },
-                                new Position(7, 2)
-                            ),
-                            new Position(7, 2)
+                                }
+                            )
                         ),
                         new StatementNode[] {
                             new FunctionCallStatementNode(
-                                new FunctionCallNode(
-                                    new PropertyNode(
-                                        new string[] { "who", "is", "john", "galt" },
-                                        new Position(4, 3)
-                                    ),
-                                    new ExpressionNode[] { },
+                                new PropertyNode(
+                                    new string[] { "who", "is", "john", "galt" },
                                     new Position(4, 3)
-                                )
+                                ),
+                                new ExpressionNode[] { }
                             )
                         },
                         new Position(0, 2)
                     ),
                     new WhileStatementNode(
                         new TermExpressionNode(
-                            unchecked ((char) -1),
                             new TermNode(
                                 new PropertyFactorNode(
                                     new PropertyNode(
                                         new string[] { "a" },
                                         new Position(7, 6)
-                                    ),
-                                    new Position(7, 6)
-                                ),
-                                new string[] { },
-                                new FactorNode[] { },
-                                new Position(7, 6)
-                            ),
-                            new Position(7, 6)
+                                    )
+                                )
+                            )
                         ),
                         new StatementNode[] {
                             new OperatorEqualStatementNode(
@@ -427,25 +324,18 @@ namespace IronJSTests.Interpreter
                                 ),
                                 '-',
                                 new TermExpressionNode(
-                                    unchecked ((char) -1),
                                     new TermNode(
                                         new NumberFactorNode(
                                             1,
                                             new Position(15, 6)
-                                        ),
-                                        new string[] { },
-                                        new FactorNode[] { },
-                                        new Position(15, 6)
-                                    ),
-                                    new Position(15, 6)
-                                ),
-                                new Position(10, 6)
+                                        )
+                                    )
+                                )
                             )
                         },
                         new Position(0, 6)
                     )
-                },
-                new Position(0, 0)
+                }
             );
 
             var text = TestFilesHelper.ReadWhileTestFile();
@@ -466,11 +356,9 @@ namespace IronJSTests.Interpreter
                     new VarStatementNode(
                         "a",
                         new TermExpressionNode(
-                            unchecked ((char) -1),
                             new TermNode(
                                 new ExpressionFactorNode(
                                     new TermExpressionNode(
-                                        unchecked ((char) -1),
                                         new TermNode(
                                             new NumberFactorNode(
                                                 5,
@@ -482,10 +370,8 @@ namespace IronJSTests.Interpreter
                                                     4,
                                                     new Position(14, 0)
                                                 )
-                                            },
-                                            new Position(9, 0)
-                                        ),
-                                        new Position(9, 0)
+                                            }
+                                        )
                                     ),
                                     new Position(8, 0)
                                 ),
@@ -495,21 +381,17 @@ namespace IronJSTests.Interpreter
                                         6,
                                         new Position(20, 0)
                                     )
-                                },
-                                new Position(8, 0)
-                            ),
-                            new Position(8, 0)
+                                }
+                            )
                         ),
                         new Position(0, 0)
                     ),
                     new VarStatementNode(
                         "b",
                         new TermExpressionNode(
-                            unchecked ((char) -1),
                             new TermNode(
                                 new ExpressionFactorNode(
                                     new TermExpressionNode(
-                                        unchecked ((char) -1),
                                         new TermNode(
                                             new NumberFactorNode(
                                                 6,
@@ -519,7 +401,6 @@ namespace IronJSTests.Interpreter
                                             new FactorNode[] {
                                                 new ExpressionFactorNode(
                                                     new TermExpressionNode(
-                                                        unchecked ((char) -1),
                                                         new TermNode(
                                                             new NumberFactorNode(
                                                                 8,
@@ -531,30 +412,21 @@ namespace IronJSTests.Interpreter
                                                                     7,
                                                                     new Position(20, 2)
                                                                 )
-                                                            },
-                                                            new Position(15, 2)
-                                                        ),
-                                                        new Position(15, 2)
+                                                            }
+                                                        )
                                                     ),
                                                     new Position(14, 2)
                                                 )
-                                            },
-                                            new Position(9, 2)
-                                        ),
-                                        new Position(9, 2)
+                                            }
+                                        )
                                     ),
                                     new Position(8, 2)
-                                ),
-                                new string[] { },
-                                new FactorNode[] { },
-                                new Position(8, 2)
-                            ),
-                            new Position(8, 2)
+                                )
+                            )
                         ),
                         new Position(0, 2)
                     )
-                },
-                new Position(0, 0)
+                }
             );
 
             var text = TestFilesHelper.ReadNestedExpressionsTestFile();
@@ -580,10 +452,7 @@ namespace IronJSTests.Interpreter
                                 new NumberFactorNode(
                                     5,
                                     new Position(33, 1)
-                                ),
-                                new string[] { },
-                                new FactorNode[] { },
-                                new Position(33, 1)
+                                )
                             ),
                             new Position(32, 1)
                         ),
@@ -597,17 +466,13 @@ namespace IronJSTests.Interpreter
                                 new NumberFactorNode(
                                     6,
                                     new Position(9, 10)
-                                ),
-                                new string[] { },
-                                new FactorNode[] { },
-                                new Position(9, 10)
+                                )
                             ),
                             new Position(8, 10)
                         ),
                         new Position(0, 10)
                     )
-                },
-                new Position(0, 1)
+                }
             );
 
             var text = TestFilesHelper.ReadCommentsTestFile();
