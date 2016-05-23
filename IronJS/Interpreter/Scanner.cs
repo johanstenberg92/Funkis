@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace IronJS.Interpreter
 {
@@ -15,7 +16,38 @@ namespace IronJS.Interpreter
 
         public Scanner(string text)
         {
-            _text = new string(text.Where(c => c != '\r').ToArray());
+            var formattedText = text.Where(c => c != '\r').ToArray();
+
+            var length = formattedText.Length;
+            for (var i = 0; i < length - 1; ++i)
+            {
+                if (formattedText[i] == '/' && formattedText[i + 1] == '*')
+                {
+                    while (i < length - 1 && (formattedText[i] != '*' || formattedText[i + 1] != '/'))
+                    {
+                        char c = formattedText[i];
+                        if (c != '\n') formattedText[i] = ' ';
+
+                        ++i;
+                    }
+
+                    if (i == length - 1)
+                        throw new InvalidOperationException("Program contains malformed comments!");
+
+                    formattedText[i] = ' ';
+                    formattedText[i + 1] = ' ';
+                }
+                else if (formattedText[i] == '/' && formattedText[i + 1] == '/')
+                {
+                    while (i < length && formattedText[i] != '\n')
+                    {
+                        formattedText[i] = ' ';
+                        ++i;
+                    }
+                }
+            }
+
+            _text = new string(formattedText);
             _row = 0;
             _column = -1;
         }

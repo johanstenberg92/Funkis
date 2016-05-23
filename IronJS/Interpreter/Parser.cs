@@ -43,7 +43,10 @@ namespace IronJS.Interpreter
             var position = Position();
             var statements = Statements();
 
-            return new ProgramNode(statements, position);
+            return new ProgramNode(
+                statements, 
+                statements.Length == 0 ? position : statements[0].Position
+            );
         }
 
         private StatementNode[] Statements()

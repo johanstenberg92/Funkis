@@ -23,5 +23,10 @@ namespace IronJSTests
         {
             return File.ReadAllText("nested-expressions.js");
         }
+
+        public static string ReadCommentsTestFile()
+        {
+            return File.ReadAllText("comments.js");
+        }
     }
 }

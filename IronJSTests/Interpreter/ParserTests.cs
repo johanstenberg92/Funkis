@@ -565,5 +565,58 @@ namespace IronJSTests.Interpreter
 
             Assert.AreEqual(expectedAST, actualAST);
         }
+
+        [TestMethod]
+        [DeploymentItem(@"TestFiles\comments.js")]
+        public void ParseCommentsTest()
+        {
+            var expectedAST = new ProgramNode(
+                new StatementNode[] {
+                    new VarStatementNode(
+                        "a",
+                        new TermExpressionNode(
+                            '-',
+                            new TermNode(
+                                new NumberFactorNode(
+                                    5,
+                                    new Position(33, 1)
+                                ),
+                                new string[] { },
+                                new FactorNode[] { },
+                                new Position(33, 1)
+                            ),
+                            new Position(32, 1)
+                        ),
+                        new Position(0, 1)
+                    ),
+                    new VarStatementNode(
+                        "b",
+                        new TermExpressionNode(
+                            '+',
+                            new TermNode(
+                                new NumberFactorNode(
+                                    6,
+                                    new Position(9, 10)
+                                ),
+                                new string[] { },
+                                new FactorNode[] { },
+                                new Position(9, 10)
+                            ),
+                            new Position(8, 10)
+                        ),
+                        new Position(0, 10)
+                    )
+                },
+                new Position(0, 1)
+            );
+
+            var text = TestFilesHelper.ReadCommentsTestFile();
+
+            var parser = new Parser(new Scanner(text));
+
+            var actualAST = parser.Parse();
+
+            Assert.AreEqual(expectedAST, actualAST);
+        }
     }
 }
