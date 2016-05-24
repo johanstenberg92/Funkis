@@ -1,24 +1,22 @@
-# IronJS
+# Funkis
 
 [![Stories in Ready](https://badge.waffle.io/johanstenberg92/IronJS.svg?label=ready&title=Ready)](http://waffle.io/johanstenberg92/IronJS)
 
 ## Introduction
-IronJS aims to run Javascript on the CLR using the Dynamic Language Runtime.
+Funkis is a functional and dynamic language running on the CLR using the DLR.
 
-This project is, for now, meant to only be a toy/learning project - the "wheel"
-is re-invented multiple times. If looking for inspiration for your own compiler project,
-please browse the source code and the accompanying tests for inspiration. You could also
-take a look at a "compiler-compiler" such as ANTLR to automagically generate a scanner,
-lexer and parser for your grammar instead.
+This project is, for now, meant to only be a toy/learning project - the "wheel" is re-invented multiple times. 
+If looking for inspiration for your own compiler project, please browse the source code and the accompanying tests for inspiration. 
+You could also take a look at a "compiler-compiler" such as ANTLR to automagically generate a scanner, lexer and parser for your grammar instead.
 
 ### Waffle Throughput Graph
 
 [![Throughput Graph](https://graphs.waffle.io/johanstenberg92/IronJS/throughput.svg)](https://waffle.io/johanstenberg92/IronJS/metrics/throughput)
 
-## Language Features Supported
-Initially, only a small subset of javascript will be supported.
+## Language Specification
+Initially only an EBNF-grammar will be supported, later maybe a standard library will be written.
 
-### BNF-grammar
+### EBNF-grammar
 `ident` and `number` are defined implicitly. Only integers are supported.
 
 ```
