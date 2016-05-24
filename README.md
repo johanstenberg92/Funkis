@@ -5,6 +5,9 @@
 ## Introduction
 Funkis is a functional and dynamic language running on the CLR using the DLR.
 
+Funkis is inspired by:
+* OCaml
+
 This project is, for now, meant to only be a toy/learning project - the "wheel" is re-invented multiple times. 
 If looking for inspiration for your own compiler project, please browse the source code and the accompanying tests for inspiration. 
 You could also take a look at a "compiler-compiler" such as ANTLR to automagically generate a scanner, lexer and parser for your grammar instead.
@@ -16,36 +19,63 @@ You could also take a look at a "compiler-compiler" such as ANTLR to automagical
 ## Language Specification
 Initially only an EBNF-grammar will be supported, later maybe a standard library will be written.
 
-### EBNF-grammar
-`ident` and `number` are defined implicitly. Only integers are supported.
+`identifier` is defined implicitly as an identifier.
 
 ```
-program = statement { statement }
+global_declaration =
+	"let" identifier = expression
+	| declaration
 
-block = ( "{" statement { statement } "}" | statement )
+declaration =
+    "let" "func" identifier [identifier { "," identifier }] = expression
 
-statement =
-    "var" ident "=" expression ";"
-	| "if" "(" expression ")" block { "else" "if" "(" expression ")" block) } ["else" block]
-	| "while" "(" expression ")" block
-	| "function" ident "(" [ ident { "," ident } ] } ")" "{" statement { statement } [ "return" expression ";" ] "}"
-	| property "=" expression ";"
-	| function_call ";"
-	| property ("+=" | "-=" | "/=" | "*=") expression ";"
-
-expression = 
+expression =
     ["+" | "-"] term
+	| "|" pattern "->" expression { newline "|" pattern "->" expression }
 
-function_call = property "(" [ expression { "," expression } ] ")"
+pattern =
+    identifier
+	| "[" identifier { "," identifier } "]"
+	| "(" identifier { "," identifier } ")"
 
-term = factor { ("*" | "/" | "+" | "-" | "==" | ">=" | "<=" | "!=" | "<" | ">" | "||" | "&&" ) factor }
+term = factor { ("*" | "/" | "+" | "-" | "==" | ">=" | "<=" | "!=" | "<" | ">" | "||" | "&&" | "::" |  ) factor }
 
 factor =
-   property
-   | function_call
-   | number
-   | """ string """
-   | "(" expression ")"
+    property
+	| property expression { "," expression }
+	| "(" expression ")"
+    | literal
+	| "[" expression { "," expression } "]"
 
-property = ident { "." ident }
+literal =
+    int
+	| float
+	| bool
+	| char
+	| string
+	| unit
+
+int = digit { digit }
+
+float = digit "." digit { digit }
+
+bool = ("true" | "false")
+
+char = "'" <TODO> "'"
+
+string = """ <TODO> """
+
+unit = "()"
+
+property = identifier { "." identifier }
+
+identifier = (A-Z | a-z) { (upper_case_letter, lower_case_letter, digit) }
+
+newline = "\n" | "\r\n"
+
+upper_case_letter = ("A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z")
+
+lower_case_letter = ("a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z")
+
+digit = ("0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9")
 ```
