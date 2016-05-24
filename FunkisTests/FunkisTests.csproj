@@ -59,9 +59,9 @@
     <Compile Include="TestFilesHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\IronJS\IronJS.csproj">
+    <ProjectReference Include="..\Funkis\Funkis.csproj">
       <Project>{933cdd34-a006-472f-838d-731b68c99b37}</Project>
-      <Name>IronJS</Name>
+      <Name>Funkis</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

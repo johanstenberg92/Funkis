@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronJS", "IronJS\IronJS.csproj", "{933CDD34-A006-472F-838D-731B68C99B37}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Funkis", "Funkis\Funkis.csproj", "{933CDD34-A006-472F-838D-731B68C99B37}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronJSTests", "IronJSTests\IronJSTests.csproj", "{BAFCBD4E-3DF4-455E-8523-BC1C021826E2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunkisTests", "FunkisTests\FunkisTests.csproj", "{BAFCBD4E-3DF4-455E-8523-BC1C021826E2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{840E6B4F-EB94-42FC-8B83-00B92ED26762}"
 	ProjectSection(SolutionItems) = preProject
