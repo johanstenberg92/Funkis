@@ -1,6 +1,6 @@
 # Funkis
 
-[![Stories in Ready](https://badge.waffle.io/johanstenberg92/IronJS.svg?label=ready&title=Ready)](http://waffle.io/johanstenberg92/IronJS)
+[![Stories in Ready](https://badge.waffle.io/johanstenberg92/Funkis.svg?label=ready&title=Ready)](http://waffle.io/johanstenberg92/Funkis)
 
 ## Introduction
 Funkis is a functional and dynamic language running on the CLR using the DLR.
@@ -11,7 +11,7 @@ You could also take a look at a "compiler-compiler" such as ANTLR to automagical
 
 ### Waffle Throughput Graph
 
-[![Throughput Graph](https://graphs.waffle.io/johanstenberg92/IronJS/throughput.svg)](https://waffle.io/johanstenberg92/IronJS/metrics/throughput)
+[![Throughput Graph](https://graphs.waffle.io/johanstenberg92/Funkis/throughput.svg)](https://waffle.io/johanstenberg92/Funkis/metrics/throughput)
 
 ## Language Specification
 Initially only an EBNF-grammar will be supported, later maybe a standard library will be written.
