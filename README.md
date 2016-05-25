@@ -19,24 +19,40 @@ You could also take a look at a "compiler-compiler" such as ANTLR to automagical
 ## Language Specification
 Initially only an EBNF-grammar will be supported, later maybe a standard library will be written.
 
-`identifier` is defined implicitly as an identifier.
-
 ```
-global_declaration =
-	"let" identifier = expression
+program = ["namespace" property newline newline] top_level_declaration newline { top_level_declaration newline }
+
+top_level_declaration =
+	let_declaration
 	| declaration
+
+let_declaration = "let" (identifier | unit ) = expression
 
 declaration =
     "let" "func" identifier [identifier { "," identifier }] = expression
 
 expression =
-    ["+" | "-"] term
-	| "|" pattern "->" expression { newline "|" pattern "->" expression }
+	array_declaration
+	| tuple_declaration
+	| pattern_match
+	| "if" expression "then" expression "else" expression
+	| "func" [ identifier { "," identifier } ] "->" expression
+	| "let" identifier { "," identifier } "=" expression "in" newline expression
+    | ["+" | "-"] term
+
+array_declaration = "[" [ expression { "," expression } ] "]"
+
+tuple_declaration = "(" expression "," expression { "," expression } ")"
+
+pattern_match = "|" pattern "->" expression { newline "|" pattern "->" expression }
 
 pattern =
-    identifier
-	| "[" identifier { "," identifier } "]"
-	| "(" identifier { "," identifier } ")"
+    identifier_or_literal
+	| "[" [ identifier_or_literal { "," identifier_or_literal } ] "]"
+	| "(" identifier_or_literal "," identifier_or_literal { "," identifier_or_literal } ")"
+	| identifier_or_literal "::" identifier
+
+identifier_or_literal = (identifier | literal)
 
 term = factor { ("*" | "/" | "+" | "-" | "==" | ">=" | "<=" | "!=" | "<" | ">" | "||" | "&&" | "::" |  ) factor }
 
@@ -45,7 +61,8 @@ factor =
 	| property expression { "," expression }
 	| "(" expression ")"
     | literal
-	| "[" expression { "," expression } "]"
+	
+property = identifier { "." identifier }
 
 literal =
     int
@@ -57,7 +74,7 @@ literal =
 
 int = digit { digit }
 
-float = digit "." digit { digit }
+float = digit { digit } "." digit { digit }
 
 bool = ("true" | "false")
 
@@ -66,8 +83,6 @@ char = "'" <TODO> "'"
 string = """ <TODO> """
 
 unit = "()"
-
-property = identifier { "." identifier }
 
 identifier = (A-Z | a-z) { (upper_case_letter, lower_case_letter, digit) }
 
