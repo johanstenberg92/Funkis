@@ -7,7 +7,7 @@ namespace IronJSTests
     [TestClass]
     public class LexerTests
     {
-        [TestMethod]
+        /*[TestMethod]
         [DeploymentItem(@"TestFiles\hello-world.js")]
         public void TokenizeHelloWorldTest()
         {
@@ -76,6 +76,6 @@ namespace IronJSTests
 
             Assert.AreEqual(expectedTokens.Length, tokenAndPositions.Length);
             Assert.AreEqual(expectedTokens.Length, expectedPositions.Length);
-        }
+        }*/
     }
 }

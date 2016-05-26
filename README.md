@@ -22,6 +22,11 @@ with `/*` and ends with `*/`.
 Pattern matching will hopefully be greatly extended in the future.
 
 Inspiration for more advanced pattern matching support can be found [here](http://caml.inria.fr/pub/docs/manual-ocaml/patterns.html).
+
+To read a pointer of a function, just type the name of the function. An example would be if your function's name is `funkis` and has no
+arguments, you apply the function by typing `funkis ()` and you read the function pointer through typing `funkis`.
+
+
 ### EBNF-grammar
 ```
 program = ["namespace" property] declaration { declaration }
@@ -53,7 +58,7 @@ property_or_literal = (property | literal)
 term = factor { ("*" | "/" | "+" | "-" | "==" | ">=" | "<=" | "!=" | "<" | ">" | "||" | "&&" | "::" |  ) factor }
 
 factor =
-    property [ expression { "," expression } ]
+    property [ ( "(" expression { "," expression } ")" | identifier { . identifier } ]
 	| "(" expression ")"
     | literal
 	

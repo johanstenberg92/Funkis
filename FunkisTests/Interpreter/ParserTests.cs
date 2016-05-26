@@ -7,7 +7,7 @@ namespace IronJSTests.Interpreter
     [TestClass]
     public class ParserTests
     {
-        [TestMethod]
+        /*[TestMethod]
         [DeploymentItem(@"TestFiles\hello-world.js")]
         public void ParseHelloWorldTest()
         {
@@ -482,6 +482,6 @@ namespace IronJSTests.Interpreter
             var actualAST = parser.Parse();
 
             Assert.AreEqual(expectedAST, actualAST);
-        }
+        }*/
     }
 }

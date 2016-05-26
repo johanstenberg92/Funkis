@@ -77,6 +77,9 @@
     <Content Include="TestFiles\nested-expressions.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="TestFiles\hello-world.funk">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Content Include="TestFiles\while.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
