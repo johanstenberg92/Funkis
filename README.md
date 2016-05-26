@@ -24,7 +24,7 @@ Pattern matching will hopefully be greatly extended in the future.
 Inspiration for more advanced pattern matching support can be found [here](http://caml.inria.fr/pub/docs/manual-ocaml/patterns.html).
 ### EBNF-grammar
 ```
-program = ["namespace" property newline] declaration newline { declaration newline }
+program = ["namespace" property] declaration { declaration }
 
 declaration =
 	"let" (identifier | unit) = expression
@@ -33,10 +33,10 @@ declaration =
 expression =
 	list_declaration
 	| tuple_declaration
-	| "match" expression newline pattern_catch { newline pattern_catch }
+	| "match" expression pattern_catch { pattern_catch }
 	| "if" expression "then" expression "else" expression
 	| "func" [ identifier { "," identifier } ] "->" expression
-	| "let" identifier { "," identifier } "=" expression "in" newline expression
+	| "let" identifier { "," identifier } "=" expression "in" expression
     | ["+" | "-"] term
 
 list_declaration = "[" [ expression { "," expression } ] "]"

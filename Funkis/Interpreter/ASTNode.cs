@@ -448,6 +448,53 @@ namespace IronJS.Interpreter
         }
     }
 
+    public class TermExpressionNode : ExpressionNode
+    {
+        public char Op { get; private set; }
+
+        public TermNode Term { get; private set; }
+
+        public TermExpressionNode(
+            TermNode term
+        ) : this(
+            unchecked ((char) -1),
+            term,
+            term.Position
+        ) { }
+
+        public TermExpressionNode(
+            char op,
+            TermNode term,
+            Position position
+            ) : base(position)
+        {
+            Op = op;
+            Term = term;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as TermExpressionNode;
+
+            if (other == null) return false;
+
+            return
+                Op.Equals(other.Op)
+                && Term.Equals(other.Term)
+                && base.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash *= 31 + base.GetHashCode();
+            hash *= 31 + Op.GetHashCode();
+            hash *= 31 + Term.GetHashCode();
+
+            return hash;
+        }
+    }
+
     public class TermNode : ASTNode
     {
         public FactorNode Factor { get; private set; }

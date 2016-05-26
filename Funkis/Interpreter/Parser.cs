@@ -40,221 +40,213 @@ namespace IronJS.Interpreter
 
         private ProgramNode program()
         {
-            var statements = Statements();
+            PropertyNode ns = null;
 
-            return new ProgramNode(statements);
-        }
-
-        private StatementNode[] Statements()
-        {
-            var statements = new List<StatementNode>();
-
-            var statement = Statement();
-
-            while (statement != null)
+            if (Found(KeywordToken.Namespace))
             {
-                statements.Add(statement);
-                statement = Statement();
+                ns = ExpectProperty();
             }
 
-            return statements.ToArray();
+            var declarations = Declarations();
+
+            return new ProgramNode(ns, declarations);
         }
 
-        private StatementNode Statement()
+        private DeclarationNode[] Declarations()
+        {
+            var declarations = new List<DeclarationNode>();
+
+            var declaration = Declaration();
+
+            while (declaration != null)
+            {
+                declarations.Add(declaration);
+                declaration = Declaration();
+            }
+
+            return declarations.ToArray();
+        }
+
+        private DeclarationNode Declaration()
         {
             var position = Position();
 
-            if (Found(KeywordToken.Var))
+            Expect(KeywordToken.Let);
+
+            if (Found(KeywordToken.Func))
             {
-                var identifier = ExpectIdentifier();
-                Expect(SymbolToken.Assign);
+                var name = ExpectIdentifier();
+
+                var parameters = ParameterIdentifiers();
+
+                Expect(SymbolToken.Equal);
 
                 var expression = Expression();
 
-                Expect(SymbolToken.SemiColon);
-
-                return new VarStatementNode(identifier, expression, position);
+                return new FuncDeclarationNode(name, parameters, expression, position);
             }
-            
-            Token[] conditionals = { KeywordToken.If, KeywordToken.While };
-            var conditionalsIndex = FoundOneOf(conditionals);
-
-            if (conditionalsIndex != -1)
+            else
             {
-                Expect(SymbolToken.Parenthesis);
+                var ident = FoundIdentifier();
+
+                if (ident == null) Expect(SymbolToken.Unit);
 
                 var expression = Expression();
 
-                Expect(SymbolToken.ClosingParenthesis);
-
-                StatementNode[] statements = null;
-
-                if (Found(SymbolToken.Bracket))
-                {
-                    statements = Statements();
-                    Expect(SymbolToken.ClosingBracket);
-                }
-                else
-                {
-                    statements = new StatementNode[] { Statement() };
-                }
-
-                if (conditionalsIndex == 1)
-                    return new WhileStatementNode(expression, statements, position);
-
-                var elseIfExpressions = new List<ExpressionNode>();
-                var elseIfStatements = new List<StatementNode[]>();
-
-                var foundElse = Found(KeywordToken.Else);
-                var foundIf = Found(KeywordToken.If);
-
-                while (foundElse && foundIf)
-                {
-                    Expect(SymbolToken.Parenthesis);
-                    var expr = Expression();
-                    Expect(SymbolToken.ClosingParenthesis);
-
-                    StatementNode[] stmts = null;
-
-                    if (Found(SymbolToken.Bracket))
-                    {
-                        stmts = Statements();
-                        Expect(SymbolToken.ClosingBracket);
-                    }
-                    else
-                    {
-                        stmts = new StatementNode[] { Statement() };
-                    }
-
-                    elseIfExpressions.Add(expr);
-                    elseIfStatements.Add(stmts);
-
-                    foundElse = Found(KeywordToken.Else);
-                    foundIf = Found(KeywordToken.If);
-                }
-
-                StatementNode[] elseStatements = new StatementNode[0];
-
-                if (foundElse)
-                {
-                    if (Found(SymbolToken.Bracket))
-                    {
-                        elseStatements = Statements();
-                        Expect(SymbolToken.ClosingBracket);
-                    }
-                    else
-                    {
-                        elseStatements = new StatementNode[] { Statement() };
-                    }
-                }
-
-                return new IfStatementNode(
-                    expression, 
-                    statements, 
-                    elseIfExpressions.ToArray(),
-                    elseIfStatements.ToArray(),
-                    elseStatements,
-                    position
-                );
+                return new LetDeclarationNode(ident, expression, position);
             }
-            else if (Found(KeywordToken.Function))
+        }
+
+        private string[] ParameterIdentifiers(int min = 0)
+        {
+            var parameters = new List<string>();
+
+            var parameter = FoundIdentifier();
+
+            if (parameter != null)
             {
-                var identifier = ExpectIdentifier();
+                parameters.Add(parameter);
 
-                Expect(SymbolToken.Parenthesis);
-
-                var parameters = new List<string>();
-
-                var parameter = FoundIdentifier();
-
-                if (parameter != null)
+                while (Found(SymbolToken.Comma))
                 {
+                    parameter = ExpectIdentifier();
                     parameters.Add(parameter);
-
-                    while (Found(SymbolToken.Comma))
-                    {
-                        parameter = ExpectIdentifier();
-                        parameters.Add(parameter);
-                    }
-                }
-
-                Expect(SymbolToken.ClosingParenthesis);
-
-                Expect(SymbolToken.Bracket);
-
-                var statements = Statements();
-
-                ExpressionNode returnExpr = null;
-
-                if (Found(KeywordToken.Return))
-                {
-                    returnExpr = Expression();
-                    Expect(SymbolToken.SemiColon);
-                }
-
-                Expect(SymbolToken.ClosingBracket);
-
-                return new FunctionStatementNode(identifier, parameters.ToArray(), statements, returnExpr, position);
-            }
-
-            var maybeProperty = FoundProperty();
-            
-            if (maybeProperty != null)
-            {
-                if (Found(SymbolToken.Assign))
-                {
-                    var expression = Expression();
-
-                    return new AssignmentStatementNode(maybeProperty, expression, position);
-                }
-                else if (Found(SymbolToken.Parenthesis))
-                {
-                    var tuple = FunctionCallTuple(maybeProperty, position);
-                    return new FunctionCallStatementNode(tuple.Item1, tuple.Item2);
-                }
-                else
-                {
-                    Token[] withOperations = {
-                        SymbolToken.IncrementWith,
-                        SymbolToken.DecrementWith,
-                        SymbolToken.MultiplyWith,
-                        SymbolToken.DivideWith
-                    };
-                    
-                    var idx = ExpectOneOf(withOperations);
-
-                    var expression = Expression();
-
-                    Expect(SymbolToken.SemiColon);
-
-                    char op = '+';
-
-                    if (idx == 0) op = '+';
-                    else if (idx == 1) op = '-';
-                    else if (idx == 2) op = '*';
-                    else op = '/';
-
-                    return new OperatorEqualStatementNode(maybeProperty, op, expression);
                 }
             }
 
-            return null;
+            if (parameters.Count < min) ThrowParserError();
+
+            return parameters.ToArray();
         }
 
         private ExpressionNode Expression()
         {
             var position = Position();
 
-            Token[] addOrSubtract = { SymbolToken.Add, SymbolToken.Subtract };
+            if (Found(SymbolToken.SquareBracket))
+            {
+                var expressions = Expressions();
 
-            var idx = FoundOneOf(addOrSubtract);
-            char optionalOp = idx != -1 ? (idx == 0 ? '+' : '-') : unchecked ((char) -1);
+                Expect(SymbolToken.ClosingSquareBracket);
 
-            var term = Term();
+                return new ListExpressionNode(expressions, position);
+            }
+            else if (Found(SymbolToken.Parenthesis))
+            {
+                var expressions = Expressions(1);
+                
+                Expect(SymbolToken.ClosingParenthesis);
 
-            return new TermExpressionNode(optionalOp, term, position);
+                if (expressions.Length > 1)
+                {
+                    return new ListExpressionNode(expressions, position);
+                }
+                else
+                {
+                    return new TermExpressionNode(
+                        new TermNode(
+                            new ExpressionFactorNode(
+                                expressions[0],
+                                position
+                            )
+                        )
+                    );
+                }
+            }
+            else if (Found(KeywordToken.Match))
+            {
+                var matchExpression = Expression();
+
+                var patterns = new List<PatternNode>();
+
+                var patternExpressions = new List<ExpressionNode>();
+
+                while (Found(SymbolToken.Pipe))
+                {
+                    var pattern = Pattern();
+
+                    patterns.Add(pattern);
+
+                    Expect(SymbolToken.Arrow);
+
+                    var expression = Expression();
+
+                    patternExpressions.Add(expression);
+                }
+
+                if (patterns.Count == 0)
+                {
+                    ThrowParserError();
+                }
+
+                return new MatchExpressionNode(
+                    matchExpression,
+                    patterns.ToArray(),
+                    patternExpressions.ToArray(),
+                    position
+                );
+            }
+            else if (Found(KeywordToken.If))
+            {
+                var ifExpression = Expression();
+
+                Expect(KeywordToken.Then);
+
+                var thenExpression = Expression();
+
+                Expect(KeywordToken.Else);
+
+                var elseExpression = Expression();
+
+                return new IfExpressionNode(
+                    ifExpression,
+                    thenExpression,
+                    elseExpression,
+                    position
+                );
+            }
+            else if (Found(KeywordToken.Func))
+            {
+                var identifiers = ParameterIdentifiers();
+
+                Expect(SymbolToken.Arrow);
+
+                var expr = Expression();
+
+                return new LambdaExpressionNode(identifiers, expr, position);
+            }
+            else if (Found(KeywordToken.Let))
+            {
+                var identifiers = ParameterIdentifiers();
+
+                Expect(SymbolToken.Equal);
+
+                var bodyExpr = Expression();
+
+                Expect(KeywordToken.In);
+
+                var restExpr = Expression();
+
+                return new LetInExpressionNode(identifiers, bodyExpr, restExpr, position);
+            }
+            else
+            {
+                Token[] addOrSubtract = { SymbolToken.Add, SymbolToken.Subtract };
+
+                var idx = FoundOneOf(addOrSubtract);
+                char optionalOp = idx != -1 ? (idx == 0 ? '+' : '-') : unchecked((char)-1);
+
+                var term = Term();
+
+                return new TermExpressionNode(optionalOp, term, position);
+            }
         }
-
+        
+        private PatternNode Pattern()
+        {
+            return null; // TODO
+        }
+        
         private static Dictionary<Token, string> infixOps = new Dictionary<Token, string>()
         {
             { SymbolToken.Multiply, "*" },
@@ -268,7 +260,8 @@ namespace IronJS.Interpreter
             { SymbolToken.LessThan, "<" },
             { SymbolToken.LargerThan, ">" },
             { SymbolToken.Or, "||" },
-            { SymbolToken.And, "&&" }
+            { SymbolToken.And, "&&" },
+            { SymbolToken.Cons, "::" }
         };
 
         private TermNode Term()
@@ -291,7 +284,7 @@ namespace IronJS.Interpreter
 
                 optionalOps.Add(op);
                 optionalFactors.Add(Factor());
-                
+
                 idx = FoundOneOf(infixOpsKeys);
             }
 
@@ -306,28 +299,92 @@ namespace IronJS.Interpreter
 
             if (maybeProperty != null)
             {
-                if (Found(SymbolToken.Parenthesis))
-                {
-                    var tuple = FunctionCallTuple(maybeProperty, position);
-                    return new FunctionCallFactorNode(tuple.Item1, tuple.Item2);
-                }
+                var expressions = Expressions();
 
-                return new PropertyFactorNode(maybeProperty);
+                return new PropertyFactorNode(maybeProperty, expressions);
+            }
+            else if (Found(SymbolToken.Parenthesis))
+            {
+                var expression = Expression();
+                Expect(SymbolToken.ClosingParenthesis);
+
+                return new ExpressionFactorNode(expression, position);
             }
 
-            var maybeNumber = FoundNumber();
+            return Literal();
+        }
 
-            if (maybeNumber.HasValue) return new NumberFactorNode(maybeNumber.Value, position);
+        private FactorNode Literal()
+        {
+            var position = Position();
+
+            if (Found(SymbolToken.Unit)) return new UnitLiteralNode(position);
+
+            var maybeInt = FoundInt();
+
+            if (maybeInt.HasValue)
+            {
+                return new IntLiteralNode(maybeInt.Value, position);
+            }
+
+            var maybeFloat = FoundFloat();
+
+            if (maybeFloat.HasValue)
+            {
+                return new FloatLiteralNode(maybeFloat.Value, position);
+            }
+
+            var maybeBool = FoundBool();
+
+            if (maybeBool.HasValue)
+            {
+                return new BoolLiteralNode(maybeBool.Value, position);
+            }
+
+            var maybeChar = FoundChar();
+
+            if (maybeChar.HasValue)
+            {
+                return new CharLiteralNode(maybeChar.Value, position);
+            }
 
             var maybeString = FoundString();
 
-            if (maybeString != null) return new StringFactorNode(maybeString, position);
+            if (maybeString != null)
+            {
+                return new StringLiteralNode(maybeString, position);
+            }
 
-            Expect(SymbolToken.Parenthesis);
+            ThrowParserError();
+            return null;
+        }
+
+        private ExpressionNode[] Expressions(int min = 0)
+        {
+            var expressions = new List<ExpressionNode>();
+
             var expression = Expression();
-            Expect(SymbolToken.ClosingParenthesis);
 
-            return new ExpressionFactorNode(expression, position);
+            if (expression != null)
+            {
+                expressions.Add(expression);
+
+                while (Found(SymbolToken.Comma))
+                {
+                    expression = Expression();
+
+                    if (expression == null)
+                    {
+                        ThrowParserError();
+                    }
+
+                    expressions.Add(expression);
+                }
+            }
+
+            if (expressions.Count < min) ThrowParserError();
+
+            return expressions.ToArray();
         }
 
         private PropertyNode FoundProperty()
@@ -391,9 +448,48 @@ namespace IronJS.Interpreter
             return null;
         }
 
-        private int? FoundNumber()
+        private long? FoundInt()
         {
-            var token = _tokens[_position] as NumericToken;
+            var token = _tokens[_position] as IntToken;
+
+            if (token != null)
+            {
+                _position++;
+                return token.Value;
+            }
+
+            return null;
+        }
+
+        private double? FoundFloat()
+        {
+            var token = _tokens[_position] as FloatToken;
+
+            if (token != null)
+            {
+                _position++;
+                return token.Value;
+            }
+
+            return null;
+        }
+
+        private bool? FoundBool()
+        {
+            var token = _tokens[_position] as BoolToken;
+
+            if (token != null)
+            {
+                _position++;
+                return token.Value;
+            }
+
+            return null;
+        }
+
+        private char? FoundChar()
+        {
+            var token = _tokens[_position] as CharToken;
 
             if (token != null)
             {
@@ -470,33 +566,6 @@ namespace IronJS.Interpreter
             }
 
             return res;
-        }
-
-        private Tuple<PropertyNode, ExpressionNode[]> FunctionCallTuple(PropertyNode property, Position position)
-        {
-            var parameters = new List<ExpressionNode>();
-
-            if (!Found(SymbolToken.ClosingParenthesis))
-            {
-                var parameter = Expression();
-
-                if (parameter != null)
-                {
-                    parameters.Add(parameter);
-
-                    while (Found(SymbolToken.Comma))
-                    {
-                        parameter = Expression();
-                        if (parameter == null) ThrowParserError();
-                        parameters.Add(parameter);
-                    }
-                }
-
-                Expect(SymbolToken.ClosingParenthesis);
-            }
-            Expect(SymbolToken.SemiColon);
-
-            return new Tuple<PropertyNode, ExpressionNode[]>(property, parameters.ToArray());
         }
     }
 }

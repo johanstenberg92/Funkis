@@ -20,11 +20,12 @@ namespace IronJS.Interpreter
         public static SymbolToken Subtract = new SymbolToken();
         public static SymbolToken Bracket = new SymbolToken();
         public static SymbolToken ClosingBracket = new SymbolToken();
+        public static SymbolToken SquareBracket = new SymbolToken();
+        public static SymbolToken ClosingSquareBracket = new SymbolToken();
         public static SymbolToken Dot = new SymbolToken();
         public static SymbolToken SemiColon = new SymbolToken();
         public static SymbolToken Comma = new SymbolToken();
         public static SymbolToken Pipe = new SymbolToken();
-        public static SymbolToken Newline = new SymbolToken();
 
         public static Dictionary<char, SymbolToken> OneCharacterSymbolTokens = new Dictionary<char, SymbolToken>()
         {
@@ -39,11 +40,12 @@ namespace IronJS.Interpreter
             { '-', Subtract },
             { '{', Bracket },
             { '}', ClosingBracket },
+            { '[', SquareBracket },
+            { ']', ClosingSquareBracket },
             { '.', Dot },
             { ';', SemiColon },
             { ',', Comma },
-            { '|', Pipe },
-            { '\n', Newline }
+            { '|', Pipe }
         };
 
         public static SymbolToken Equal = new SymbolToken();
@@ -92,7 +94,8 @@ namespace IronJS.Interpreter
         public static KeywordToken Then = new KeywordToken();
         public static KeywordToken Else = new KeywordToken();
         public static KeywordToken Match = new KeywordToken();
-        public static KeywordToken Var = new KeywordToken();
+        public static KeywordToken Namespace = new KeywordToken();
+        public static KeywordToken In = new KeywordToken();
 
         public static Dictionary<string, KeywordToken> KeywordTokens = new Dictionary<string, KeywordToken>()
         {
@@ -101,7 +104,9 @@ namespace IronJS.Interpreter
             { "if", If },
             { "then", Then },
             { "else", Else },
-            { "match", Match }
+            { "match", Match },
+            { "namespace", Namespace },
+            { "In", In }
         };
     }
 
