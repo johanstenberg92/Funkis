@@ -17,7 +17,7 @@ Initially only an EBNF-grammar will be supported, later maybe a standard library
 will be written.
 
 Comments are the same as in C# - `//` denotes line comments and block comments start
-with '/*' and ends with '*/'.
+with `/*` and ends with `*/`.
 
 Pattern matching will hopefully be greatly extended in the future.
 
