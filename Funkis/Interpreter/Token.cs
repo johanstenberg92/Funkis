@@ -116,7 +116,7 @@ namespace IronJS.Interpreter
 
         public static bool IsIdentifierStartCharacter(char c)
         {
-            return char.IsLetter(c) || c == '_';
+            return char.IsLetter(c);
         }
 
         public static bool IsIdentifierCharacter(char c)

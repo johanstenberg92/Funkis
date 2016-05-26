@@ -18,21 +18,20 @@ will be written.
 
 Comments are the same as in C# - `//` denotes line comments and block comments start
 with '/*' and ends with '*/'.
+
+Pattern matching will hopefully be greatly extended in the future.
+
+Inspiration for more advanced pattern matching support can be found [here](http://caml.inria.fr/pub/docs/manual-ocaml/patterns.html).
 ### EBNF-grammar
 ```
-program = ["namespace" property newline newline] top_level_declaration newline { top_level_declaration newline }
-
-top_level_declaration =
-	let_declaration
-	| declaration
-
-let_declaration = "let" (identifier | unit) = expression
+program = ["namespace" property newline] declaration newline { declaration newline }
 
 declaration =
-    "let" "func" identifier [identifier { "," identifier }] = expression
+	"let" (identifier | unit) = expression
+	| "let" "func" identifier [identifier { "," identifier }] = expression
 
 expression =
-	array_declaration
+	list_declaration
 	| tuple_declaration
 	| "match" expression newline pattern_catch { newline pattern_catch }
 	| "if" expression "then" expression "else" expression
@@ -40,7 +39,7 @@ expression =
 	| "let" identifier { "," identifier } "=" expression "in" newline expression
     | ["+" | "-"] term
 
-array_declaration = "[" [ expression { "," expression } ] "]"
+list_declaration = "[" [ expression { "," expression } ] "]"
 
 tuple_declaration = "(" expression "," expression { "," expression } ")"
 
@@ -48,17 +47,13 @@ pattern_catch = "|" pattern "->" expression
 
 pattern =
     property_or_literal
-	| "[" [ property_or_literal { "," property_or_literal } ] "]"
-	| "(" property_or_literal "," property_or_literal { "," property_or_literal } ")"
-	| property_or_literal "::" identifier
 
 property_or_literal = (property | literal)
 
 term = factor { ("*" | "/" | "+" | "-" | "==" | ">=" | "<=" | "!=" | "<" | ">" | "||" | "&&" | "::" |  ) factor }
 
 factor =
-    property
-	| property expression { "," expression }
+    property [ expression { "," expression } ]
 	| "(" expression ")"
     | literal
 	
@@ -84,7 +79,7 @@ string = """ <TODO> """
 
 unit = "()"
 
-identifier = (upper_case_letter | lower_case_letter | "_") { (upper_case_letter | lower_case_letter | digit | "_") }
+identifier = (upper_case_letter | lower_case_letter) { (upper_case_letter | lower_case_letter | digit | "_") }
 
 newline = "\n" | "\r\n"
 
