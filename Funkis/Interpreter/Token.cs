@@ -23,6 +23,8 @@ namespace IronJS.Interpreter
         public static SymbolToken Dot = new SymbolToken();
         public static SymbolToken SemiColon = new SymbolToken();
         public static SymbolToken Comma = new SymbolToken();
+        public static SymbolToken Pipe = new SymbolToken();
+        public static SymbolToken Newline = new SymbolToken();
 
         public static Dictionary<char, SymbolToken> OneCharacterSymbolTokens = new Dictionary<char, SymbolToken>()
         {
@@ -39,7 +41,9 @@ namespace IronJS.Interpreter
             { '}', ClosingBracket },
             { '.', Dot },
             { ';', SemiColon },
-            { ',', Comma}
+            { ',', Comma },
+            { '|', Pipe },
+            { '\n', Newline }
         };
 
         public static SymbolToken Equal = new SymbolToken();
@@ -54,6 +58,9 @@ namespace IronJS.Interpreter
         public static SymbolToken DecrementWith = new SymbolToken();
         public static SymbolToken DivideWith = new SymbolToken();
         public static SymbolToken MultiplyWith = new SymbolToken();
+        public static SymbolToken Cons = new SymbolToken();
+        public static SymbolToken Arrow = new SymbolToken();
+        public static SymbolToken Unit = new SymbolToken();
 
         public static Dictionary<string, SymbolToken> TwoCharacterSymbolTokens = new Dictionary<string, SymbolToken>()
         {
@@ -68,7 +75,10 @@ namespace IronJS.Interpreter
             { "+=", IncrementWith },
             { "-=", DecrementWith },
             { "/=", DivideWith },
-            { "*=", MultiplyWith }
+            { "*=", MultiplyWith },
+            { "::", Cons },
+            { "->", Arrow },
+            { "()", Unit }
         };
 
         public static SymbolToken EOF = new SymbolToken();
@@ -76,21 +86,22 @@ namespace IronJS.Interpreter
 
     public class KeywordToken : Token
     {
-        public static KeywordToken Function = new KeywordToken();
+        public static KeywordToken Let = new KeywordToken();
+        public static KeywordToken Func = new KeywordToken();
         public static KeywordToken If = new KeywordToken();
+        public static KeywordToken Then = new KeywordToken();
         public static KeywordToken Else = new KeywordToken();
-        public static KeywordToken While = new KeywordToken();
-        public static KeywordToken Return = new KeywordToken();
+        public static KeywordToken Match = new KeywordToken();
         public static KeywordToken Var = new KeywordToken();
 
         public static Dictionary<string, KeywordToken> KeywordTokens = new Dictionary<string, KeywordToken>()
         {
-            { "function", Function },
+            { "let", Let },
+            { "func", Func },
             { "if", If },
+            { "then", Then },
             { "else", Else },
-            { "while", While },
-            { "return", Return },
-            { "var", Var }
+            { "match", Match }
         };
     }
 
@@ -105,7 +116,7 @@ namespace IronJS.Interpreter
 
         public static bool IsIdentifierStartCharacter(char c)
         {
-            return char.IsLetter(c);
+            return char.IsLetter(c) || c == '_';
         }
 
         public static bool IsIdentifierCharacter(char c)
@@ -128,23 +139,18 @@ namespace IronJS.Interpreter
         }
     }
 
-    public class NumericToken : Token
+    public class LiteralToken<T> : Token
     {
-        public int Value { get; private set; }
+        public T Value { get; private set; }
 
-        public NumericToken(int value)
+        public LiteralToken(T value)
         {
             Value = value;
         }
 
-        public static bool IsNumericCharacter(char c)
-        {
-            return char.IsDigit(c);
-        }
-
         public override bool Equals(object obj)
         {
-            var other = obj as NumericToken;
+            var other = obj as LiteralToken<T>;
 
             if (other == null) return false;
 
@@ -157,27 +163,45 @@ namespace IronJS.Interpreter
         }
     }
 
-    public class StringToken : Token
+    public class IntToken : LiteralToken<long>
     {
-        public string Value { get; private set; }
+        public IntToken(long value) : base(value) { }
+    }
 
-        public StringToken(string value)
+    public class FloatToken : LiteralToken<double>
+    {
+        public FloatToken(double value) : base(value) { }
+    }
+
+    public class CharToken : LiteralToken<char>
+    {
+        public CharToken(char value) : base(value) { }
+    }
+
+    public class BoolToken : LiteralToken<bool>
+    {
+        public BoolToken(bool value) : base(value) { }
+
+        public static BoolToken TrueToken = new BoolToken(true);
+
+        public static BoolToken FalseToken = new BoolToken(false);
+
+        public static BoolToken IsBoolToken(string s)
         {
-            Value = value;
+            switch (s)
+            {
+                case "true":
+                    return TrueToken;
+                case "false":
+                    return FalseToken;
+                default:
+                    return null;
+            }
         }
+    }
 
-        public override bool Equals(object obj)
-        {
-            var other = obj as StringToken;
-
-            if (other == null) return false;
-
-            return Value.Equals(other.Value);
-        }
-
-        public override int GetHashCode()
-        {
-            return Value.GetHashCode();
-        }
+    public class StringToken : LiteralToken<string>
+    {
+        public StringToken(string value) : base(value) { }
     }
 }

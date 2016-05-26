@@ -74,6 +74,10 @@ namespace IronJS.Interpreter
 
                 var str = new string(chars.ToArray());
 
+                var maybeBoolToken = BoolToken.IsBoolToken(str);
+
+                if (maybeBoolToken != null) return maybeBoolToken;
+
                 if (KeywordToken.KeywordTokens.ContainsKey(str))
                 {
                     return KeywordToken.KeywordTokens[str];
@@ -84,19 +88,55 @@ namespace IronJS.Interpreter
                 }
             }
 
-            if (NumericToken.IsNumericCharacter(c))
+            if (char.IsDigit(c))
             {
                 var chars = new List<char>();
 
-                while (NumericToken.IsNumericCharacter(c))
+                while (char.IsDigit(c))
                 {
                     chars.Add(_scanner.Read());
                     c = _scanner.Peek();
                 }
 
-                var str = new string(chars.ToArray());
+                if (_scanner.Peek() == '.')
+                {
+                    chars.Add(_scanner.Read());
 
-                return new NumericToken(Int32.Parse(str));
+                    c = _scanner.Peek();
+
+                    if (!char.IsDigit(c))
+                    {
+                        var pos = _scanner.PeekPosition();
+                        throw new InvalidOperationException($"Expected digit at row {pos.Row}, column {pos.Column}");
+                    }
+
+                    while (char.IsDigit(c))
+                    {
+                        chars.Add(_scanner.Read());
+                        c = _scanner.Peek();
+                    }
+
+                    return new FloatToken(double.Parse(new string(chars.ToArray())));
+                }
+                else
+                {
+                    return new IntToken(long.Parse(new string(chars.ToArray())));
+                }
+            }
+
+            if (c == '\'')
+            {
+                _scanner.Read();
+
+                c = _scanner.Read();
+
+                if (_scanner.Read() != '\'')
+                {
+                    var pos = _scanner.PeekPosition();
+                    throw new InvalidOperationException($"Expected apostrophe (') at row {pos.Row}, column {pos.Column}");
+                }
+
+                return new CharToken(c);
             }
 
             if (c == '"')
@@ -117,6 +157,7 @@ namespace IronJS.Interpreter
             }
 
             var position = _scanner.PeekPosition();
+
             throw new InvalidOperationException($"Lexing failed at row {position.Row}, column {position.Column}");
         }
 
@@ -131,21 +172,6 @@ namespace IronJS.Interpreter
                 c = _scanner.Read();
                 c = _scanner.Peek();
             }
-        }
-
-        private bool IsNumber(char c)
-        {
-            return c >= '0' && c <= '9';
-        }
-
-        private Token ReadNumber()
-        {
-            return null;
-        }
-
-        private Token ReadString()
-        {
-            return null;
         }
     }
 }

@@ -8,17 +8,17 @@ Funkis is a functional and dynamic language running on the CLR using the DLR.
 Funkis is inspired by:
 * OCaml
 
-This project is, for now, meant to only be a toy/learning project - the "wheel" is re-invented multiple times. 
-If looking for inspiration for your own compiler project, please browse the source code and the accompanying tests for inspiration. 
-You could also take a look at a "compiler-compiler" such as ANTLR to automagically generate a scanner, lexer and parser for your grammar instead.
-
 ### Waffle Throughput Graph
 
 [![Throughput Graph](https://graphs.waffle.io/johanstenberg92/Funkis/throughput.svg)](https://waffle.io/johanstenberg92/Funkis/metrics/throughput)
 
 ## Language Specification
-Initially only an EBNF-grammar will be supported, later maybe a standard library will be written.
+Initially only an EBNF-grammar will be supported, later maybe a standard library 
+will be written.
 
+Comments are the same as in C# - `//` denotes line comments and block comments start
+with '/*' and ends with '*/'.
+### EBNF-grammar
 ```
 program = ["namespace" property newline newline] top_level_declaration newline { top_level_declaration newline }
 
@@ -26,7 +26,7 @@ top_level_declaration =
 	let_declaration
 	| declaration
 
-let_declaration = "let" (identifier | unit ) = expression
+let_declaration = "let" (identifier | unit) = expression
 
 declaration =
     "let" "func" identifier [identifier { "," identifier }] = expression
@@ -34,7 +34,7 @@ declaration =
 expression =
 	array_declaration
 	| tuple_declaration
-	| pattern_match
+	| "match" expression newline pattern_catch { newline pattern_catch }
 	| "if" expression "then" expression "else" expression
 	| "func" [ identifier { "," identifier } ] "->" expression
 	| "let" identifier { "," identifier } "=" expression "in" newline expression
@@ -44,15 +44,15 @@ array_declaration = "[" [ expression { "," expression } ] "]"
 
 tuple_declaration = "(" expression "," expression { "," expression } ")"
 
-pattern_match = "|" pattern "->" expression { newline "|" pattern "->" expression }
+pattern_catch = "|" pattern "->" expression
 
 pattern =
-    identifier_or_literal
-	| "[" [ identifier_or_literal { "," identifier_or_literal } ] "]"
-	| "(" identifier_or_literal "," identifier_or_literal { "," identifier_or_literal } ")"
-	| identifier_or_literal "::" identifier
+    property_or_literal
+	| "[" [ property_or_literal { "," property_or_literal } ] "]"
+	| "(" property_or_literal "," property_or_literal { "," property_or_literal } ")"
+	| property_or_literal "::" identifier
 
-identifier_or_literal = (identifier | literal)
+property_or_literal = (property | literal)
 
 term = factor { ("*" | "/" | "+" | "-" | "==" | ">=" | "<=" | "!=" | "<" | ">" | "||" | "&&" | "::" |  ) factor }
 
@@ -84,7 +84,7 @@ string = """ <TODO> """
 
 unit = "()"
 
-identifier = (A-Z | a-z) { (upper_case_letter, lower_case_letter, digit) }
+identifier = (upper_case_letter | lower_case_letter | "_") { (upper_case_letter | lower_case_letter | digit | "_") }
 
 newline = "\n" | "\r\n"
 
