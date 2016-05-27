@@ -58,7 +58,8 @@ property_or_literal = (property | literal)
 term = factor { ("*" | "/" | "+" | "-" | "==" | ">=" | "<=" | "!=" | "<" | ">" | "||" | "&&" | "::" |  ) factor }
 
 factor =
-    property [ ( "(" expression { "," expression } ")" | identifier { . identifier } ]
+	property
+    | property [ ( "(" expression { "," expression } ")" | identifier { . identifier } | unit ) ]
 	| "(" expression ")"
     | literal
 	
@@ -93,4 +94,17 @@ upper_case_letter = ("A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" |
 lower_case_letter = ("a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z")
 
 digit = ("0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9")
+```
+
+## Examples
+Examples of Funkis programs can be found in the `FunkisTests/TestFiles` folder.
+
+### Mandatory Hello World
+The mandatory hello world program:
+
+```
+let func hello_world = 
+    println "hello world!"
+
+let () = hello_world ()
 ```

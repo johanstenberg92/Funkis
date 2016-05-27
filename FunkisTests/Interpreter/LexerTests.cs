@@ -7,8 +7,8 @@ namespace IronJSTests
     [TestClass]
     public class LexerTests
     {
-        /*[TestMethod]
-        [DeploymentItem(@"TestFiles\hello-world.js")]
+        [TestMethod]
+        [DeploymentItem(@"TestFiles\hello-world.funk")]
         public void TokenizeHelloWorldTest()
         {
             var text = TestFilesHelper.ReadHelloWorldTestFile();
@@ -16,44 +16,32 @@ namespace IronJSTests
             var lexer = new Lexer(new Scanner(text));
 
             Token[] expectedTokens = {
-                KeywordToken.Function,
+                KeywordToken.Let,
+                KeywordToken.Func,
                 new IdentifierToken("hello_world"),
-                SymbolToken.Parenthesis,
-                SymbolToken.ClosingParenthesis,
-                SymbolToken.Bracket,
-                new IdentifierToken("console"),
-                SymbolToken.Dot,
-                new IdentifierToken("log"),
-                SymbolToken.Parenthesis,
+                SymbolToken.Assign,
+                new IdentifierToken("println"),
                 new StringToken("hello world!"),
-                SymbolToken.ClosingParenthesis,
-                SymbolToken.SemiColon,
-                SymbolToken.ClosingBracket,
+                KeywordToken.Let,
+                SymbolToken.Unit,
+                SymbolToken.Assign,
                 new IdentifierToken("hello_world"),
-                SymbolToken.Parenthesis,
-                SymbolToken.ClosingParenthesis,
-                SymbolToken.SemiColon,
+                SymbolToken.Unit,
                 SymbolToken.EOF
             };
 
             Position[] expectedPositions = {
                 new Position(0, 0),
+                new Position(4, 0),
                 new Position(9, 0),
-                new Position(20, 0),
                 new Position(21, 0),
-                new Position(23, 0),
                 new Position(4, 1),
-                new Position(11, 1),
                 new Position(12, 1),
-                new Position(15, 1),
-                new Position(16, 1),
-                new Position(30, 1),
-                new Position(31, 1),
-                new Position(0, 2),
-                new Position(0, 4),
-                new Position(11, 4),
-                new Position(12, 4),
-                new Position(13, 4),
+                new Position(0, 3),
+                new Position(4, 3),
+                new Position(7, 3),
+                new Position(9, 3),
+                new Position(21, 3),
                 new Position(-1, -1)
             };
 
@@ -76,6 +64,6 @@ namespace IronJSTests
 
             Assert.AreEqual(expectedTokens.Length, tokenAndPositions.Length);
             Assert.AreEqual(expectedTokens.Length, expectedPositions.Length);
-        }*/
+        }
     }
 }
