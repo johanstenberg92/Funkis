@@ -423,7 +423,7 @@ namespace IronJS.Interpreter
     {
         public PatternLiteral Literal { get; private set; }
 
-        PatternLiteralNode(PatternLiteral literal) : base((literal as ASTNode).Position)
+        public PatternLiteralNode(PatternLiteral literal) : base((literal as ASTNode).Position)
         {
             Literal = literal;
         }
@@ -548,21 +548,30 @@ namespace IronJS.Interpreter
         public FactorNode(Position position) : base(position) { }
     }
 
-    public class PropertyFactorNode : FactorNode
+    public class FunctionCallNode : FactorNode
     {
         public PropertyNode Property { get; private set; }
 
         public ExpressionNode[] Expressions { get; private set; }
 
-        public PropertyFactorNode(
+        public FunctionCallNode(
             PropertyNode property
         ) : this(
             property,
             new ExpressionNode[] { }
+        )
+        { }
+
+        public FunctionCallNode(
+            PropertyNode property,
+            ExpressionNode expression
+        ) : this(
+            property,
+            new ExpressionNode[] { expression }
         ) { }
 
-        public PropertyFactorNode(
-            PropertyNode property, 
+        public FunctionCallNode(
+            PropertyNode property,
             ExpressionNode[] expressions) : base(property.Position)
         {
             Property = property;
@@ -571,11 +580,11 @@ namespace IronJS.Interpreter
 
         public override bool Equals(object obj)
         {
-            var other = obj as PropertyFactorNode;
+            var other = obj as FunctionCallNode;
 
             if (other == null) return false;
 
-            return 
+            return
                 Property.Equals(other.Property)
                 && Expressions.SequenceEqual(other.Expressions)
                 && base.Equals(other);
@@ -688,9 +697,17 @@ namespace IronJS.Interpreter
         public UnitLiteralNode(Position position) : base(UnitObject, position) { }
     }
 
-    public class PropertyNode : ASTNode, PatternLiteral
+    public class PropertyNode : FactorNode, PatternLiteral
     {
         public string[] Identifiers { get; private set; }
+
+        public PropertyNode(
+            string identifier,
+            Position position
+        ) : this(
+            new string[] { identifier },
+            position
+        ) { }
 
         public PropertyNode(string[] identifiers, Position position) : base(position)
         {

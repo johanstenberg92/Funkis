@@ -9,7 +9,7 @@ namespace IronJSTests
     {
         [TestMethod]
         [DeploymentItem(@"TestFiles\hello-world.funk")]
-        public void TokenizeHelloWorldTest()
+        public void LexHelloWorldTest()
         {
             var text = TestFilesHelper.ReadHelloWorldTestFile();
 
@@ -21,7 +21,9 @@ namespace IronJSTests
                 new IdentifierToken("hello_world"),
                 SymbolToken.Assign,
                 new IdentifierToken("println"),
+                SymbolToken.Parenthesis,
                 new StringToken("hello world!"),
+                SymbolToken.ClosingParenthesis,
                 KeywordToken.Let,
                 SymbolToken.Unit,
                 SymbolToken.Assign,
@@ -37,6 +39,8 @@ namespace IronJSTests
                 new Position(21, 0),
                 new Position(4, 1),
                 new Position(12, 1),
+                new Position(13, 1),
+                new Position(27, 1),
                 new Position(0, 3),
                 new Position(4, 3),
                 new Position(7, 3),

@@ -59,7 +59,7 @@ term = factor { ("*" | "/" | "+" | "-" | "==" | ">=" | "<=" | "!=" | "<" | ">" |
 
 factor =
 	property
-    | property [ ( "(" expression { "," expression } ")" | identifier { . identifier } | unit ) ]
+    | property "(" expression { "," expression } ")"
 	| "(" expression ")"
     | literal
 	
@@ -104,7 +104,7 @@ The mandatory hello world program:
 
 ```
 let func hello_world = 
-    println "hello world!"
+    println ("hello world!")
 
 let () = hello_world ()
 ```

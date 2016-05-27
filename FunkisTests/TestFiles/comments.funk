@@ -1,5 +1,5 @@
 ﻿// Hello Goodbye
-var a = /* i'm a fun comment */ -5;
+let a = /* i'm a fun comment */ -5;
 
 /* I
    Span
@@ -8,4 +8,4 @@ var a = /* i'm a fun comment */ -5;
    Rows
 */
 
-var b = +6; // Stahp
+let b = +6; // STOP!

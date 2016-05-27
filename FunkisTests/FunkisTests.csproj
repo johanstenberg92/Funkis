@@ -65,12 +65,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="TestFiles\comments.js">
+    <None Include="TestFiles\comments.funk">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestFiles\hello-world.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </None>
     <Content Include="TestFiles\if-else-if-else.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

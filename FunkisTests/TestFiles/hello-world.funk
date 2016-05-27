@@ -1,4 +1,4 @@
 ﻿let func hello_world = 
-    println "hello world!"
+    println ("hello world!")
 
 let () = hello_world ()

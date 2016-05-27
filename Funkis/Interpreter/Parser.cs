@@ -71,7 +71,7 @@ namespace IronJS.Interpreter
         {
             var position = Position();
 
-            Expect(KeywordToken.Let);
+            if (!Found(KeywordToken.Let)) return null;
 
             if (Found(KeywordToken.Func))
             {
@@ -79,7 +79,7 @@ namespace IronJS.Interpreter
 
                 var parameters = ParameterIdentifiers();
 
-                Expect(SymbolToken.Equal);
+                Expect(SymbolToken.Assign);
 
                 var expression = Expression();
 
@@ -90,6 +90,8 @@ namespace IronJS.Interpreter
                 var ident = FoundIdentifier();
 
                 if (ident == null) Expect(SymbolToken.Unit);
+
+                Expect(SymbolToken.Assign);
 
                 var expression = Expression();
 
@@ -219,7 +221,7 @@ namespace IronJS.Interpreter
             {
                 var identifiers = ParameterIdentifiers();
 
-                Expect(SymbolToken.Equal);
+                Expect(SymbolToken.Assign);
 
                 var bodyExpr = Expression();
 
@@ -244,7 +246,16 @@ namespace IronJS.Interpreter
         
         private PatternNode Pattern()
         {
-            return null; // TODO
+            var maybeProperty = FoundProperty();
+
+            if (maybeProperty != null) return new PatternLiteralNode(maybeProperty);
+
+            var literal = (Literal() as PatternLiteral);
+
+            if (literal != null) return new PatternLiteralNode(literal);
+
+            ThrowParserError();
+            return null;
         }
         
         private static Dictionary<Token, string> infixOps = new Dictionary<Token, string>()
@@ -299,9 +310,22 @@ namespace IronJS.Interpreter
 
             if (maybeProperty != null)
             {
-                var expressions = Expressions();
+                if (Found(SymbolToken.Parenthesis))
+                {
+                    var expressions = Expressions();
 
-                return new PropertyFactorNode(maybeProperty, expressions);
+                    Expect(SymbolToken.ClosingParenthesis);
+
+                    return new FunctionCallNode(maybeProperty, expressions);
+                }
+                else if (Found(SymbolToken.Unit))
+                {
+                    return new FunctionCallNode(maybeProperty);
+                }
+                else
+                {
+                    return maybeProperty;
+                }
             }
             else if (Found(SymbolToken.Parenthesis))
             {
