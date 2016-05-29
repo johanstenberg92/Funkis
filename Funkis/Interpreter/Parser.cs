@@ -12,9 +12,9 @@ namespace IronJS.Interpreter
 
         private int _position = 0;
 
-        public Parser(Scanner scanner)
+        public Parser(string text)
         {
-            Lexer lexer = new Lexer(scanner);
+            Lexer lexer = new Lexer(new Scanner(text));
             Tuple<Token, Position>[] tokensAndPositions = lexer.Tokenize();
 
             var tokens = new List<Token>();
@@ -42,6 +42,8 @@ namespace IronJS.Interpreter
         {
             PropertyNode ns = null;
 
+            var imports = Imports();
+
             if (Found(KeywordToken.Namespace))
             {
                 ns = ExpectProperty();
@@ -49,7 +51,23 @@ namespace IronJS.Interpreter
 
             var declarations = Declarations();
 
-            return new ProgramNode(ns, declarations);
+            return new ProgramNode(imports, ns, declarations);
+        }
+
+        private ImportNode[] Imports()
+        {
+            var imports = new List<ImportNode>();
+
+            var pos = Position();
+
+            while (Found(KeywordToken.Using))
+            {
+                var property = ExpectProperty();
+                imports.Add(new ImportNode(property, pos));
+                pos = Position();
+            }
+
+            return imports.ToArray();
         }
 
         private DeclarationNode[] Declarations()
@@ -75,7 +93,7 @@ namespace IronJS.Interpreter
 
             if (Found(KeywordToken.Func))
             {
-                var name = ExpectIdentifier();
+                var name = ExpectIdentifier().Identifier;
 
                 var parameters = ParameterIdentifiers();
 
@@ -91,28 +109,32 @@ namespace IronJS.Interpreter
 
                 if (ident == null) Expect(SymbolToken.Unit);
 
+                var name = ident == null ? null : ident.Identifier;
+
                 Expect(SymbolToken.Assign);
 
                 var expression = Expression();
 
-                return new LetDeclarationNode(ident, expression, position);
+                return new LetDeclarationNode(name, expression, position);
             }
         }
 
-        private string[] ParameterIdentifiers(int min = 0)
+        private IdentifierNode[] ParameterIdentifiers(int min = 0)
         {
-            var parameters = new List<string>();
+            var parameters = new List<IdentifierNode>();
 
+            var position = Position();
             var parameter = FoundIdentifier();
 
             if (parameter != null)
             {
-                parameters.Add(parameter);
+                parameters.Add(new IdentifierNode(parameter.Identifier, position));
 
                 while (Found(SymbolToken.Comma))
                 {
+                    position = Position();
                     parameter = ExpectIdentifier();
-                    parameters.Add(parameter);
+                    parameters.Add(new IdentifierNode(parameter.Identifier, position));
                 }
             }
 
@@ -219,6 +241,8 @@ namespace IronJS.Interpreter
             }
             else if (Found(KeywordToken.Let))
             {
+                var name = ExpectIdentifier().Identifier;
+
                 var identifiers = ParameterIdentifiers();
 
                 Expect(SymbolToken.Assign);
@@ -229,7 +253,13 @@ namespace IronJS.Interpreter
 
                 var restExpr = Expression();
 
-                return new LetInExpressionNode(identifiers, bodyExpr, restExpr, position);
+                return new LetInExpressionNode(
+                    name, 
+                    identifiers, 
+                    bodyExpr, 
+                    restExpr, 
+                    position
+                );
             }
             else
             {
@@ -415,18 +445,18 @@ namespace IronJS.Interpreter
         {
             var position = Position();
 
-            var identifier = FoundIdentifier();
+            var node = FoundIdentifier();
 
-            if (identifier != null)
+            if (node != null)
             {
                 var identifiers = new List<string>();
 
-                identifiers.Add(identifier);
+                identifiers.Add(node.Identifier);
 
                 while (Found(SymbolToken.Dot))
                 {
-                    identifier = ExpectIdentifier();
-                    identifiers.Add(identifier);
+                    node = ExpectIdentifier();
+                    identifiers.Add(node.Identifier);
                 }
 
                 return new PropertyNode(identifiers.ToArray(), position);
@@ -459,14 +489,15 @@ namespace IronJS.Interpreter
             return false;
         }
 
-        private string FoundIdentifier()
+        private IdentifierNode FoundIdentifier()
         {
             var token = _tokens[_position] as IdentifierToken;
 
             if (token != null)
             {
+                var pos = Position();
                 _position++;
-                return token.Value;
+                return new IdentifierNode(token.Value, pos);
             }
 
             return null;
@@ -547,7 +578,7 @@ namespace IronJS.Interpreter
             _position++;
         }
 
-        private string ExpectIdentifier()
+        private IdentifierNode ExpectIdentifier()
         {
             var maybeIdentifier = FoundIdentifier();
             if (maybeIdentifier == null) ThrowParserError();

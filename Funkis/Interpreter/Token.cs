@@ -96,6 +96,7 @@ namespace IronJS.Interpreter
         public static KeywordToken Match = new KeywordToken();
         public static KeywordToken Namespace = new KeywordToken();
         public static KeywordToken In = new KeywordToken();
+        public static KeywordToken Using = new KeywordToken();
 
         public static Dictionary<string, KeywordToken> KeywordTokens = new Dictionary<string, KeywordToken>()
         {
@@ -106,7 +107,8 @@ namespace IronJS.Interpreter
             { "else", Else },
             { "match", Match },
             { "namespace", Namespace },
-            { "In", In }
+            { "in", In },
+            { "using", Using }
         };
     }
 

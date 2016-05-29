@@ -3,7 +3,7 @@
 [![Stories in Ready](https://badge.waffle.io/johanstenberg92/Funkis.svg?label=ready&title=Ready)](http://waffle.io/johanstenberg92/Funkis)
 
 ## Introduction
-Funkis is a functional and dynamic language running on the CLR using the DLR.
+Funkis is a functional and statically typed language running on the CLR.
 
 Funkis is inspired by:
 * OCaml
@@ -29,11 +29,13 @@ arguments, you apply the function by typing `funkis ()` and you read the functio
 
 ### EBNF-grammar
 ```
-program = ["namespace" property] declaration { declaration }
+program = { import } ["namespace" property] declaration { declaration }
+
+import = "using" property
 
 declaration =
 	"let" (identifier | unit) = expression
-	| "let" "func" identifier [identifier { "," identifier }] = expression
+	| "let" "func" identifier [  identifier { "," identifier } ] = expression
 
 expression =
 	list_declaration
@@ -41,7 +43,7 @@ expression =
 	| "match" expression pattern_catch { pattern_catch }
 	| "if" expression "then" expression "else" expression
 	| "func" [ identifier { "," identifier } ] "->" expression
-	| "let" identifier { "," identifier } "=" expression "in" expression
+	| "let" identifier [ identifier { "," identifier } ] "=" expression "in" expression
     | ["+" | "-"] term
 
 list_declaration = "[" [ expression { "," expression } ] "]"
@@ -50,10 +52,7 @@ tuple_declaration = "(" expression "," expression { "," expression } ")"
 
 pattern_catch = "|" pattern "->" expression
 
-pattern =
-    property_or_literal
-
-property_or_literal = (property | literal)
+pattern = literal
 
 term = factor { ("*" | "/" | "+" | "-" | "==" | ">=" | "<=" | "!=" | "<" | ">" | "||" | "&&" | "::" |  ) factor }
 
@@ -99,9 +98,7 @@ digit = ("0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9")
 ## Examples
 Examples of Funkis programs can be found in the `FunkisTests/TestFiles` folder.
 
-### Mandatory Hello World
-The mandatory hello world program:
-
+### Hello World
 ```
 let func hello_world = 
     println ("hello world!")

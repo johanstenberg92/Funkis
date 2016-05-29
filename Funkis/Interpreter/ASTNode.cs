@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 
 namespace IronJS.Interpreter
 {
@@ -32,14 +33,33 @@ namespace IronJS.Interpreter
 
     public class ProgramNode : ASTNode
     {
+        public ImportNode[] Imports { get; private set; }
+        
         public PropertyNode Namespace { get; private set; }
 
         public DeclarationNode[] Declarations { get; private set; }
 
-        public ProgramNode(DeclarationNode[] declarations) : this(null, declarations) { }
+        public ProgramNode(
+            ImportNode[] imports,
+            DeclarationNode[] declarations
+        ) : this(
+            imports,
+            null, 
+            declarations
+        ) { }
 
-        public ProgramNode(PropertyNode ns, DeclarationNode[] declarations) : base(new Position(0, 0))
+        public ProgramNode(DeclarationNode[] declarations) : this(
+            new ImportNode[] { },
+            null,
+            declarations
+            ) { }
+
+        public ProgramNode(
+            ImportNode[] imports, 
+            PropertyNode ns, 
+            DeclarationNode[] declarations) : base(new Position(0, 0))
         {
+            Imports = imports;
             Namespace = ns;
             Declarations = declarations;
         }
@@ -62,6 +82,36 @@ namespace IronJS.Interpreter
             hash *= 31 + base.GetHashCode();
             if (Namespace != null) hash *= 31 + Namespace.GetHashCode();
             hash *= 31 + Declarations.GetHashCode();
+
+            return hash;
+        }
+    }
+
+    public class ImportNode : ASTNode
+    {
+        public PropertyNode Property { get; private set; }
+
+        public ImportNode(PropertyNode property, Position position) : base(position)
+        {
+            Property = property;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as ImportNode;
+
+            if (other == null) return false;
+
+            return
+                Property.Equals(other.Property)
+                && base.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash *= 31 + base.GetHashCode();
+            hash *= 31 + Property.GetHashCode();
 
             return hash;
         }
@@ -117,7 +167,7 @@ namespace IronJS.Interpreter
     {
         public string Name { get; private set; }
 
-        public string[] Parameters { get; private set; }
+        public IdentifierNode[] Parameters { get; private set; }
 
         public ExpressionNode Expression { get; private set; }
 
@@ -126,14 +176,14 @@ namespace IronJS.Interpreter
             ExpressionNode expression,
             Position position) : this(
                 name,
-                new string[] { },
+                new IdentifierNode[] { },
                 expression, 
                 position
             ) { }
 
         public FuncDeclarationNode(
             string name,
-            string[] parameters,
+            IdentifierNode[] parameters,
             ExpressionNode expression,
             Position position) : base(position) {
             Name = name;
@@ -323,7 +373,7 @@ namespace IronJS.Interpreter
 
     public class LambdaExpressionNode : ExpressionNode
     {
-        public string[] Parameters { get; private set; }
+        public IdentifierNode[] Parameters { get; private set; }
 
         public ExpressionNode Expression { get; private set; }
 
@@ -331,13 +381,13 @@ namespace IronJS.Interpreter
             ExpressionNode expression,
             Position position
             ) : this(
-                new string[] { },
+                new IdentifierNode[] { },
                 expression,
                 position
             ) { }
 
         public LambdaExpressionNode(
-            string[] parameters,
+            IdentifierNode[] parameters,
             ExpressionNode expression,
             Position position
             ) : base(position)
@@ -371,20 +421,24 @@ namespace IronJS.Interpreter
 
     public class LetInExpressionNode : ExpressionNode
     {
-        public string[] Identifiers { get; private set; }
+        public string Name { get; private set; }
+
+        public IdentifierNode[] Parameters { get; private set; }
 
         public ExpressionNode Expression { get; private set; }
 
         public ExpressionNode InExpression { get; private set; }
 
         public LetInExpressionNode(
-            string[] identifiers,
+            string name,
+            IdentifierNode[] parameters,
             ExpressionNode expression,
             ExpressionNode inExpression,
             Position position
             ) : base(position)
         {
-            Identifiers = identifiers;
+            Name = name;
+            Parameters = parameters;
             Expression = expression;
             InExpression = inExpression;
         }
@@ -396,7 +450,8 @@ namespace IronJS.Interpreter
             if (other == null) return false;
 
             return
-                Identifiers.SequenceEqual(other.Identifiers)
+                Name.Equals(other.Name)
+                && Parameters.SequenceEqual(other.Parameters)
                 && Expression.Equals(other.Expression)
                 && InExpression.Equals(other.InExpression)
                 && base.Equals(other);
@@ -406,7 +461,8 @@ namespace IronJS.Interpreter
         {
             int hash = 17;
             hash *= 31 + base.GetHashCode();
-            hash *= 31 + Identifiers.GetHashCode();
+            hash *= 31 + Name.GetHashCode();
+            hash *= 31 + Parameters.GetHashCode();
             hash *= 31 + Expression.GetHashCode();
             hash *= 31 + InExpression.GetHashCode();
 
@@ -692,7 +748,7 @@ namespace IronJS.Interpreter
 
     public class UnitLiteralNode : LiteralNode<object>
     {
-        private static object UnitObject = new object();
+        public static readonly object UnitObject = new object();
 
         public UnitLiteralNode(Position position) : base(UnitObject, position) { }
     }
@@ -700,6 +756,20 @@ namespace IronJS.Interpreter
     public class PropertyNode : FactorNode, PatternLiteral
     {
         public string[] Identifiers { get; private set; }
+
+        public string PropertyAsString()
+        {
+            var sb = new StringBuilder();
+
+            for (var i = 0; i < Identifiers.Length; ++i)
+            {
+                sb.Append(Identifiers[i]);
+
+                if (i != Identifiers.Length - 1) sb.Append(".");
+            }
+
+            return sb.ToString();
+        }
 
         public PropertyNode(
             string identifier,
@@ -734,4 +804,104 @@ namespace IronJS.Interpreter
         }
     }
 
+    public class IdentifierNode : ASTNode
+    {
+        public string Identifier { get; private set; }
+
+        public IdentifierNode(string identifier, Position position) : base(position)
+        {
+            Identifier = identifier;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as IdentifierNode;
+
+            if (other == null) return false;
+
+            return Identifier.SequenceEqual(other.Identifier)
+                && base.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash *= 31 + base.GetHashCode();
+            hash *= 31 + Identifier.GetHashCode();
+
+            return hash;
+        }
+    }
+
+    public class PropertyWithDeclNode : PropertyNode
+    {
+        public Declaration Declaration { get; private set; }
+
+        public PropertyWithDeclNode(
+            string[] identifiers,
+            Declaration declaration,
+            Position position) : base(identifiers, position)
+        {
+            Declaration = declaration;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as PropertyWithDeclNode;
+
+            if (other == null) return false;
+
+            return 
+                Identifiers.SequenceEqual(other.Identifiers)
+                && Declaration.Equals(other.Declaration)
+                && base.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash *= 31 + base.GetHashCode();
+            hash *= 31 + Identifiers.GetHashCode();
+            hash *= 31 + Declaration.GetHashCode();
+
+            return hash;
+        }
+    }
+
+    public class FunctionCallWithDeclNode : FunctionCallNode
+    {
+        public Declaration Declaration { get; private set; }
+
+        public FunctionCallWithDeclNode(
+            PropertyNode property,
+            ExpressionNode[] expressions,
+            Declaration declaration) : base(property, expressions)
+        {
+            Declaration = declaration;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as FunctionCallWithDeclNode;
+
+            if (other == null) return false;
+
+            return
+                Property.Equals(other.Property)
+                && Expressions.SequenceEqual(other.Expressions)
+                && Declaration.Equals(other.Declaration)
+                && base.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash *= 31 + base.GetHashCode();
+            hash *= 31 + Property.GetHashCode();
+            hash *= 31 + Expressions.GetHashCode();
+            hash *= 31 + Declaration.GetHashCode();
+
+            return hash;
+        }
+    }
 }
