@@ -15,9 +15,11 @@ namespace IronJS.Interpreter
             _scope = scope;
         }
 
-        public ProgramNode Analyze()
+        public Tuple<ProgramNode, AnalysisScope> Analyze()
         {
             AddImportsToScope(_ast.Imports);
+
+            // TODO namespace!
 
             var declarations = new List<DeclarationNode>();
 
@@ -26,11 +28,13 @@ namespace IronJS.Interpreter
                 declarations.Add(AnalyzeDeclarationNode(node));
             }
 
-            return new ProgramNode(
+            var res = new ProgramNode(
                 _ast.Imports,
                 _ast.Namespace,
                 declarations.ToArray()
             );
+
+            return new Tuple<ProgramNode, AnalysisScope>(res, _scope);
         }
 
         private void AddImportsToScope(ImportNode[] imports)

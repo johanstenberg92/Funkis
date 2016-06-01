@@ -66,7 +66,9 @@ property = identifier { "." identifier }
 
 literal =
     int
+	| long
 	| float
+	| double
 	| bool
 	| char
 	| string
@@ -74,7 +76,11 @@ literal =
 
 int = digit { digit }
 
-float = digit { digit } "." digit { digit }
+long = digit { digit } "L"
+
+double = digit { digit } "." digit { digit }
+
+float = digit { digit } "." digit { digit } "F"
 
 bool = ("true" | "false")
 

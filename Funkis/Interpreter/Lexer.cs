@@ -116,11 +116,31 @@ namespace IronJS.Interpreter
                         c = _scanner.Peek();
                     }
 
-                    return new FloatToken(double.Parse(new string(chars.ToArray())));
+                    var s = new string(chars.ToArray());
+
+                    if (_scanner.Peek() == 'F')
+                    {
+                        _scanner.Read();
+                        return new FloatToken(float.Parse(s));
+                    }
+                    else
+                    {
+                        return new DoubleToken(double.Parse(s));
+                    }
                 }
                 else
                 {
-                    return new IntToken(long.Parse(new string(chars.ToArray())));
+                    var s = new string(chars.ToArray());
+
+                    if (_scanner.Peek() == 'L')
+                    {
+                        _scanner.Read();
+                        return new LongToken(long.Parse(s));
+                    }
+                    else
+                    {
+                        return new IntToken(int.Parse(s));
+                    }
                 }
             }
 

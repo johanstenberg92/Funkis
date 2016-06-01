@@ -721,14 +721,24 @@ namespace IronJS.Interpreter
         }
     }
 
-    public class IntLiteralNode : LiteralNode<long>
+    public class IntLiteralNode : LiteralNode<int>
     {
-        public IntLiteralNode(long value, Position position) : base(value, position) { }
+        public IntLiteralNode(int value, Position position) : base(value, position) { }
     }
 
-    public class FloatLiteralNode : LiteralNode<double>
+    public class LongLiteralNode : LiteralNode<long>
     {
-        public FloatLiteralNode(double value, Position position) : base(value, position) { }
+        public LongLiteralNode(long value, Position position) : base(value, position) { }
+    }
+
+    public class FloatLiteralNode : LiteralNode<float>
+    {
+        public FloatLiteralNode(float value, Position position) : base(value, position) { }
+    }
+
+    public class DoubleLiteralNode : LiteralNode<double>
+    {
+        public DoubleLiteralNode(double value, Position position) : base(value, position) { }
     }
 
     public class BoolLiteralNode : LiteralNode<bool>

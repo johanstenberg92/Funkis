@@ -170,14 +170,24 @@ namespace IronJS.Interpreter
         }
     }
 
-    public class IntToken : LiteralToken<long>
+    public class IntToken : LiteralToken<int>
     {
-        public IntToken(long value) : base(value) { }
+        public IntToken(int value) : base(value) { }
     }
 
-    public class FloatToken : LiteralToken<double>
+    public class LongToken : LiteralToken<long>
     {
-        public FloatToken(double value) : base(value) { }
+        public LongToken(long value) : base(value) { }
+    }
+
+    public class FloatToken : LiteralToken<float>
+    {
+        public FloatToken(float value) : base(value) { }
+    }
+
+    public class DoubleToken : LiteralToken<double>
+    {
+        public DoubleToken(double value) : base(value) { }
     }
 
     public class CharToken : LiteralToken<char>

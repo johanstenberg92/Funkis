@@ -381,11 +381,25 @@ namespace IronJS.Interpreter
                 return new IntLiteralNode(maybeInt.Value, position);
             }
 
+            var maybeLong = FoundLong();
+
+            if (maybeLong.HasValue)
+            {
+                return new LongLiteralNode(maybeLong.Value, position);
+            }
+
             var maybeFloat = FoundFloat();
 
             if (maybeFloat.HasValue)
             {
                 return new FloatLiteralNode(maybeFloat.Value, position);
+            }
+
+            var maybeDouble = FoundDouble();
+
+            if (maybeDouble.HasValue)
+            {
+                return new DoubleLiteralNode(maybeDouble.Value, position);
             }
 
             var maybeBool = FoundBool();
@@ -503,7 +517,7 @@ namespace IronJS.Interpreter
             return null;
         }
 
-        private long? FoundInt()
+        private int? FoundInt()
         {
             var token = _tokens[_position] as IntToken;
 
@@ -516,9 +530,35 @@ namespace IronJS.Interpreter
             return null;
         }
 
-        private double? FoundFloat()
+        private long? FoundLong()
+        {
+            var token = _tokens[_position] as LongToken;
+
+            if (token != null)
+            {
+                _position++;
+                return token.Value;
+            }
+
+            return null;
+        }
+
+        private float? FoundFloat()
         {
             var token = _tokens[_position] as FloatToken;
+
+            if (token != null)
+            {
+                _position++;
+                return token.Value;
+            }
+
+            return null;
+        }
+
+        private double? FoundDouble()
+        {
+            var token = _tokens[_position] as DoubleToken;
 
             if (token != null)
             {
