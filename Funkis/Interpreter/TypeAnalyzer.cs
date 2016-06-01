@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -67,7 +68,7 @@ namespace IronJS.Interpreter
 
         private Type AnalyzeListExpressionNode(ListExpressionNode node)
         {
-            if (node.Expressions.Length == 0) return typeof(object);
+            if (node.Expressions.Length == 0) return typeof(ImmutableList<object>);
 
             var types = new List<Type>();
 
@@ -175,6 +176,7 @@ namespace IronJS.Interpreter
 
         private Type AnalyzeLambdaExpressionNode(LambdaExpressionNode node)
         {
+            // hard?
             return null;
         }
 
@@ -185,11 +187,20 @@ namespace IronJS.Interpreter
 
         private Type AnalyzeTermExpressionNode(TermExpressionNode node)
         {
+            var type = AnalyzeTermNode(node.Term);
+
+            //var hasOp = node.Op != unchecked ((char) - 1);
+            
+
             return null;
         }
 
         private Type AnalyzeTermNode(TermNode node)
         {
+            var types = new List<Type>();
+
+            AssertAllTypesAreSame(node, types.ToArray());
+            
             return null;
         }
 
@@ -254,6 +265,35 @@ namespace IronJS.Interpreter
                     ThrowNameAnalyzerError(parent);
                 }
             }
+        }
+
+        private static object GetDefault(Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+
+            return null;
+        }
+
+        private static bool HasOperand(Type type, Func<Expression, Expression> lambda)
+        {
+            var c = Expression.Constant(GetDefault(type), type);
+            try
+            {
+                lambda.Invoke(c);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool HasAdd(Type type)
+        {
+            return HasOperand(type, (a) => Expression.Add(a, a));
         }
     }
 }
