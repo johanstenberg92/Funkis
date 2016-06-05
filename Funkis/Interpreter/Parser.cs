@@ -95,13 +95,20 @@ namespace IronJS.Interpreter
             {
                 var name = ExpectIdentifier().Identifier;
 
-                var parameters = ParameterIdentifiers();
+                var parametersTuple = Parameters();
+
+                var parameters = parametersTuple.Item1;
+                var parameterTypes = parametersTuple.Item2;
+
+                Expect(SymbolToken.Colon);
+
+                var returnType = ExpectType();
 
                 Expect(SymbolToken.Assign);
 
                 var expression = Expression();
 
-                return new FuncDeclarationNode(name, parameters, expression, position);
+                return new FuncDeclarationNode(name, returnType, parameters, parameterTypes, expression, position);
             }
             else
             {
@@ -109,38 +116,79 @@ namespace IronJS.Interpreter
 
                 if (ident == null) Expect(SymbolToken.Unit);
 
+                Expect(SymbolToken.Colon);
+
+                var type = ExpectType();
+
                 var name = ident == null ? null : ident.Identifier;
 
                 Expect(SymbolToken.Assign);
 
                 var expression = Expression();
 
-                return new LetDeclarationNode(name, expression, position);
+                return new LetDeclarationNode(name, type, expression, position);
             }
         }
 
-        private IdentifierNode[] ParameterIdentifiers(int min = 0)
+        private IdentifierNode[] ParameterIdentifiers()
         {
             var parameters = new List<IdentifierNode>();
 
-            var position = Position();
             var parameter = FoundIdentifier();
 
             if (parameter != null)
             {
-                parameters.Add(new IdentifierNode(parameter.Identifier, position));
+                parameters.Add(parameter);
 
                 while (Found(SymbolToken.Comma))
                 {
-                    position = Position();
                     parameter = ExpectIdentifier();
-                    parameters.Add(new IdentifierNode(parameter.Identifier, position));
+                    parameters.Add(parameter);
+                }
+            }
+
+            return parameters.ToArray();
+        }
+
+        private Tuple<IdentifierNode[], TypeNode[]> Parameters(int min = 0)
+        {
+            var hasStartParenthesis = Found(SymbolToken.Parenthesis);
+
+            var parameters = new List<IdentifierNode>();
+
+            var parameterTypes = new List<TypeNode>();
+            
+            var parameter = FoundIdentifier();
+
+            if (parameter != null)
+            {
+                parameters.Add(parameter);
+                Expect(SymbolToken.Colon);
+                var type = ExpectType();
+                parameterTypes.Add(type);
+
+                while (Found(SymbolToken.Comma))
+                {
+                    parameter = ExpectIdentifier();
+                    parameters.Add(parameter);
+                    Expect(SymbolToken.Colon);
+                    type = ExpectType();
+                    parameterTypes.Add(type);
                 }
             }
 
             if (parameters.Count < min) ThrowParserError();
 
-            return parameters.ToArray();
+            var tuple = Tuple.Create(parameters.ToArray(), parameterTypes.ToArray());
+
+            if (hasStartParenthesis)
+            {
+                Expect(SymbolToken.ClosingParenthesis);
+
+                if (parameters.Count == 0) ThrowParserError();
+            }
+
+            return tuple;
         }
 
         private ExpressionNode Expression()
@@ -231,13 +279,20 @@ namespace IronJS.Interpreter
             }
             else if (Found(KeywordToken.Func))
             {
-                var identifiers = ParameterIdentifiers();
+                var parametersTuple = Parameters();
+
+                var parameters = parametersTuple.Item1;
+                var parameterTypes = parametersTuple.Item2;
+
+                Expect(SymbolToken.Colon);
+
+                var returnType = ExpectType();
 
                 Expect(SymbolToken.Arrow);
 
                 var expr = Expression();
 
-                return new LambdaExpressionNode(identifiers, expr, position);
+                return new LambdaExpressionNode(returnType, parameters, parameterTypes, expr, position);
             }
             else if (Found(KeywordToken.Let))
             {
@@ -489,6 +544,40 @@ namespace IronJS.Interpreter
             }
 
             return property;
+        }
+
+        private TypeNode ExpectType()
+        {
+            var position = Position();
+
+            var property = FoundProperty();
+            if (property != null) return new TypePropertyNode(property);
+
+            if (Found(SymbolToken.Unit)) return new TypeUnitNode(position);
+
+            Expect(SymbolToken.Parenthesis);
+
+            var parameters = new List<TypeNode>();
+
+            if (!Found(SymbolToken.ClosingParenthesis))
+            {
+                var type = ExpectType();
+                parameters.Add(type);
+
+                while (Found(SymbolToken.Comma))
+                {
+                    type = ExpectType();
+                    parameters.Add(type);
+                }
+
+                Expect(SymbolToken.ClosingParenthesis);
+            }
+
+            Expect(SymbolToken.Arrow);
+
+            var returnType = ExpectType();
+
+            return new TypeFunctionNode(parameters.ToArray(), returnType, position);
         }
 
         private bool Found(Token token)

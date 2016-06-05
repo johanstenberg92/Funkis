@@ -24,6 +24,7 @@ namespace IronJS.Interpreter
         public static SymbolToken ClosingSquareBracket = new SymbolToken();
         public static SymbolToken Dot = new SymbolToken();
         public static SymbolToken SemiColon = new SymbolToken();
+        public static SymbolToken Colon = new SymbolToken();
         public static SymbolToken Comma = new SymbolToken();
         public static SymbolToken Pipe = new SymbolToken();
 
@@ -44,6 +45,7 @@ namespace IronJS.Interpreter
             { ']', ClosingSquareBracket },
             { '.', Dot },
             { ';', SemiColon },
+            { ':', Colon },
             { ',', Comma },
             { '|', Pipe }
         };
@@ -52,14 +54,8 @@ namespace IronJS.Interpreter
         public static SymbolToken LargerThanOrEqual = new SymbolToken();
         public static SymbolToken LessThanOrEqual = new SymbolToken();
         public static SymbolToken NotEqual = new SymbolToken();
-        public static SymbolToken IncrementWithOne = new SymbolToken();
-        public static SymbolToken DecrementWithOne = new SymbolToken();
         public static SymbolToken Or = new SymbolToken();
         public static SymbolToken And = new SymbolToken();
-        public static SymbolToken IncrementWith = new SymbolToken();
-        public static SymbolToken DecrementWith = new SymbolToken();
-        public static SymbolToken DivideWith = new SymbolToken();
-        public static SymbolToken MultiplyWith = new SymbolToken();
         public static SymbolToken Cons = new SymbolToken();
         public static SymbolToken Arrow = new SymbolToken();
         public static SymbolToken Unit = new SymbolToken();
@@ -70,14 +66,8 @@ namespace IronJS.Interpreter
             { ">=", LargerThanOrEqual },
             { "<=", LessThanOrEqual },
             { "!=", NotEqual },
-            { "++", IncrementWithOne },
-            { "--", DecrementWithOne },
             { "||", Or },
             { "&&", And },
-            { "+=", IncrementWith },
-            { "-=", DecrementWith },
-            { "/=", DivideWith },
-            { "*=", MultiplyWith },
             { "::", Cons },
             { "->", Arrow },
             { "()", Unit }

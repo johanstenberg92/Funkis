@@ -15,6 +15,9 @@ namespace IronJSTests.Interpreter
                 new DeclarationNode[] {
                     new FuncDeclarationNode(
                         "hello_world",
+                        new TypeUnitNode(
+                            new Position(23, 0)
+                        ),
                         new TermExpressionNode(
                             new TermNode(
                                 new FunctionCallNode(
@@ -36,17 +39,20 @@ namespace IronJSTests.Interpreter
                         new Position(0, 0)
                     ),
                     new LetDeclarationNode(
+                        new TypeUnitNode(
+                            new Position(9, 3)
+                        ),
                         new TermExpressionNode(
                             new TermNode(
                                 new FunctionCallNode(
                                     new PropertyNode(
                                         "hello_world",
-                                        new Position(9, 3)
+                                        new Position(14, 3)
                                     ),
                                     new TermExpressionNode(
                                         new TermNode(
                                             new UnitLiteralNode(
-                                                new Position(21, 3)
+                                                new Position(26, 3)
                                             )
                                         )
                                     )
@@ -75,6 +81,12 @@ namespace IronJSTests.Interpreter
                 new DeclarationNode[] {
                     new LetDeclarationNode(
                         "a",
+                        new TypePropertyNode(
+                            new PropertyNode(
+                                "double",
+                                new Position(8, 1)
+                            )
+                        ),
                         new TermExpressionNode(
                             '-',
                             new TermNode(
@@ -89,6 +101,12 @@ namespace IronJSTests.Interpreter
                     ),
                     new LetDeclarationNode(
                         "b",
+                        new TypePropertyNode(
+                            new PropertyNode(
+                                "int",
+                                new Position(8, 10)
+                            )
+                        ),
                         new TermExpressionNode(
                             '+',
                             new TermNode(

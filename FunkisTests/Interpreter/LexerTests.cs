@@ -19,12 +19,16 @@ namespace IronJSTests
                 KeywordToken.Let,
                 KeywordToken.Func,
                 new IdentifierToken("hello_world"),
+                SymbolToken.Colon,
+                SymbolToken.Unit,
                 SymbolToken.Assign,
                 new IdentifierToken("println"),
                 SymbolToken.Parenthesis,
                 new StringToken("hello world!"),
                 SymbolToken.ClosingParenthesis,
                 KeywordToken.Let,
+                SymbolToken.Unit,
+                SymbolToken.Colon,
                 SymbolToken.Unit,
                 SymbolToken.Assign,
                 new IdentifierToken("hello_world"),
@@ -37,6 +41,8 @@ namespace IronJSTests
                 new Position(4, 0),
                 new Position(9, 0),
                 new Position(21, 0),
+                new Position(23, 0),
+                new Position(26, 0),
                 new Position(4, 1),
                 new Position(12, 1),
                 new Position(13, 1),
@@ -45,11 +51,16 @@ namespace IronJSTests
                 new Position(4, 3),
                 new Position(7, 3),
                 new Position(9, 3),
-                new Position(21, 3),
+                new Position(12, 3),
+                new Position(14, 3),
+                new Position(26, 3),
                 new Position(-1, -1)
             };
 
             var tokenAndPositions = lexer.Tokenize();
+
+            Assert.AreEqual(expectedTokens.Length, tokenAndPositions.Length);
+            Assert.AreEqual(expectedTokens.Length, expectedPositions.Length);
 
             for (var i = 0; i < expectedTokens.Length; ++i)
             {
@@ -65,9 +76,6 @@ namespace IronJSTests
 
                 Assert.AreEqual(expectedPosition, actualPosition);
             }
-
-            Assert.AreEqual(expectedTokens.Length, tokenAndPositions.Length);
-            Assert.AreEqual(expectedTokens.Length, expectedPositions.Length);
         }
     }
 }

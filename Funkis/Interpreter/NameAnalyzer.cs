@@ -62,7 +62,9 @@ namespace IronJS.Interpreter
 
             var expr = AnalyzeExpressionNode(node.Expression);
 
-            var newNode = new LetDeclarationNode(node.Name, expr, node.Position);
+            ValidateType(node.Type);
+
+            var newNode = new LetDeclarationNode(node.Name, node.Type, expr, node.Position);
 
             _scope.ReplaceNode(node, newNode);
 
@@ -89,9 +91,15 @@ namespace IronJS.Interpreter
                 _scope.Remove(id.Identifier);
             }
 
+            ValidateType(node.ReturnType);
+
+            ValidateTypes(node.ParameterTypes);
+
             var newNode = new FuncDeclarationNode(
                 name,
+                node.ReturnType,
                 node.Parameters,
+                node.ParameterTypes,
                 expr,
                 node.Position
             );
@@ -207,7 +215,17 @@ namespace IronJS.Interpreter
                 _scope.Remove(id.Identifier);
             }
 
-            return new LambdaExpressionNode(expr, node.Position);
+            ValidateType(node.ReturnType);
+
+            ValidateTypes(node.ParameterTypes);
+
+            return new LambdaExpressionNode(
+                node.ReturnType, 
+                node.Parameters, 
+                node.ParameterTypes, 
+                expr, 
+                node.Position
+            );
         }
 
         private LetInExpressionNode AnalyzeLetInExpressionNode(LetInExpressionNode node)
@@ -335,6 +353,16 @@ namespace IronJS.Interpreter
                 expr,
                 node.Position
             );
+        }
+
+        private void ValidateTypes(TypeNode[] types)
+        {
+            foreach (TypeNode type in types) ValidateType(type);
+        }
+
+        private void ValidateType(TypeNode type)
+        {
+            if (!_scope.IsTypeKnown(type)) ThrowNameAnalyzerError(type);
         }
 
         private void ThrowNameAnalyzerError(ASTNode node)

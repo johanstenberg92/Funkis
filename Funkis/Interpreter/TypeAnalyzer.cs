@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IronJS.Interpreter
 {
@@ -36,10 +34,19 @@ namespace IronJS.Interpreter
 
         private void AnalyzeDeclarationNode(DeclarationNode node)
         {
-            if (node is LetDeclarationNode) AnalyzeLetDeclarationNode(node as LetDeclarationNode);
+            if (node is LetDeclarationNode)
+                AnalyzeLetDeclarationNode(node as LetDeclarationNode);
+            if (node is FuncDeclarationNode)
+                AnalyzeFuncDeclarationNode(node as FuncDeclarationNode);
         }
 
         private void AnalyzeLetDeclarationNode(LetDeclarationNode node)
+        {
+            var type = AnalyzeExpressionNode(node.Expression);
+            _types.Add(node, type);
+        }
+
+        private void AnalyzeFuncDeclarationNode(FuncDeclarationNode node)
         {
             var type = AnalyzeExpressionNode(node.Expression);
             _types.Add(node, type);
@@ -189,15 +196,55 @@ namespace IronJS.Interpreter
         {
             var type = AnalyzeTermNode(node.Term);
 
-            //var hasOp = node.Op != unchecked ((char) - 1);
-            
+            if ((node.Op == '-' && !HasNegate(type)) || (node.Op == '+' && !HasUnaryPlus(type)))
+                ThrowNameAnalyzerError(node);
 
-            return null;
+            _types.Add(node, type);
+
+            return type;
         }
+
+        private static readonly string[] BoolOperations = new string[] {
+            "||",
+            "&&"
+        };
+
+        private static readonly string[] ReturnBoolOperations = new string[] {
+            "==",
+            ">=",
+            "<=",
+            "<",
+            ">",
+            "!="
+        };
 
         private Type AnalyzeTermNode(TermNode node)
         {
+            var containsBoolOperation = 
+                node.OptionalOps.Where(c => BoolOperations.Contains(c)).Count() != 0;
+
+            if (containsBoolOperation)
+            {
+                if (
+                    node.OptionalFactors.Count() != 1
+                    || AnalyzeFactorNode(node.Factor) != typeof(bool)
+                    || AnalyzeFactorNode(node.OptionalFactors[0]) != typeof(bool)
+                    ) ThrowNameAnalyzerError(node);
+
+                var boolType = typeof(bool);
+                _types.Add(node, boolType);
+                return boolType;
+            }
+
             var types = new List<Type>();
+
+            var firstFactorType = AnalyzeFactorNode(node.Factor);
+
+            for (var i = 0; i < node.OptionalFactors.Length; ++i)
+            {
+                var op = node.OptionalOps[i];
+                //var factor = node
+            }
 
             AssertAllTypesAreSame(node, types.ToArray());
             
@@ -294,6 +341,16 @@ namespace IronJS.Interpreter
         private static bool HasAdd(Type type)
         {
             return HasOperand(type, (a) => Expression.Add(a, a));
+        }
+
+        private static bool HasNegate(Type type)
+        {
+            return HasOperand(type, (a) => Expression.Negate(a));
+        }
+
+        private static bool HasUnaryPlus(Type type)
+        {
+            return HasOperand(type, (a) => Expression.UnaryPlus(a));
         }
     }
 }

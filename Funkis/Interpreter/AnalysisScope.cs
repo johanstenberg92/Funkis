@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace IronJS.Interpreter
 {
@@ -53,6 +54,43 @@ namespace IronJS.Interpreter
             {
                 decl.Node = newNode;
             }
+        }
+
+        private static readonly string[] NativeTypes = {
+            "int",
+            "long",
+            "float",
+            "double",
+            "bool",
+            "char",
+            "string",
+            "unit"
+        };
+
+        public bool IsTypeKnown(TypeNode type)
+        {
+            if (type is TypeUnitNode) return true;
+
+            if (type is TypePropertyNode)
+            {
+                var property = (type as TypePropertyNode).Property;
+                var asString = property.PropertyAsString();
+
+                return NativeTypes.Contains(asString);
+            }
+
+            if (type is TypeFunctionNode)
+            {
+                var typeFunc = type as TypeFunctionNode;
+
+                var knownTypes = typeFunc.Parameters.Where(x => IsTypeKnown(x));
+
+                return 
+                    IsTypeKnown(typeFunc.ReturnType) 
+                    && knownTypes.Count() == typeFunc.Parameters.Count();
+            }
+
+            return false;
         }
     }
 }

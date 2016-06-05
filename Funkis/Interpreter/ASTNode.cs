@@ -126,17 +126,22 @@ namespace IronJS.Interpreter
     {
         public string Name { get; private set; }
 
+        public TypeNode Type { get; private set; }
+
         public ExpressionNode Expression { get; private set; }
 
         public LetDeclarationNode(
+            TypeNode type,
             ExpressionNode expression,
-            Position position) : this(null, expression, position) { }
+            Position position) : this(null, type, expression, position) { }
 
         public LetDeclarationNode(
             string name,
+            TypeNode type,
             ExpressionNode expression, 
             Position position) : base(position) {
             Name = name;
+            Type = type;
             Expression = expression;
         }
 
@@ -148,6 +153,7 @@ namespace IronJS.Interpreter
 
             return
                 (Name == null) ? (other.Name == null) : Name.Equals(other.Name)
+                && Type.Equals(other.Type)
                 && Expression.Equals(other.Expression)
                 && base.Equals(other);
         }
@@ -157,6 +163,7 @@ namespace IronJS.Interpreter
             int hash = 17;
             hash *= 31 + base.GetHashCode();
             if (Name != null) hash *= 31 + Name.GetHashCode();
+            hash *= 31 + Type.GetHashCode();
             hash *= 31 + Expression.GetHashCode();
 
             return hash;
@@ -167,27 +174,38 @@ namespace IronJS.Interpreter
     {
         public string Name { get; private set; }
 
+        public TypeNode ReturnType { get; private set; }
+
         public IdentifierNode[] Parameters { get; private set; }
+
+        public TypeNode[] ParameterTypes { get; private set; }
 
         public ExpressionNode Expression { get; private set; }
 
         public FuncDeclarationNode(
             string name,
+            TypeNode returnType,
             ExpressionNode expression,
             Position position) : this(
                 name,
+                returnType,
                 new IdentifierNode[] { },
+                new TypeNode[] { },
                 expression, 
                 position
             ) { }
 
         public FuncDeclarationNode(
             string name,
+            TypeNode returnType,
             IdentifierNode[] parameters,
+            TypeNode[] parameterTypes,
             ExpressionNode expression,
             Position position) : base(position) {
             Name = name;
+            ReturnType = returnType;
             Parameters = parameters;
+            ParameterTypes = parameterTypes;
             Expression = expression;
         }
 
@@ -199,7 +217,9 @@ namespace IronJS.Interpreter
 
             return
                 Name.Equals(other.Name)
+                && ReturnType.Equals(other.ReturnType)
                 && Parameters.SequenceEqual(other.Parameters)
+                && ParameterTypes.SequenceEqual(other.ParameterTypes)
                 && Expression.Equals(other.Expression)
                 && base.Equals(other);
         }
@@ -209,7 +229,9 @@ namespace IronJS.Interpreter
             int hash = 17;
             hash *= 31 + base.GetHashCode();
             hash *= 31 + Name.GetHashCode();
+            hash *= 31 + ReturnType.GetHashCode();
             hash *= 31 + Parameters.GetHashCode();
+            hash *= 31 + ParameterTypes.GetHashCode();
             hash *= 31 + Expression.GetHashCode();
 
             return hash;
@@ -373,26 +395,37 @@ namespace IronJS.Interpreter
 
     public class LambdaExpressionNode : ExpressionNode
     {
+        public TypeNode ReturnType { get; private set; }
+
         public IdentifierNode[] Parameters { get; private set; }
+
+        public TypeNode[] ParameterTypes { get; private set; }
 
         public ExpressionNode Expression { get; private set; }
 
         public LambdaExpressionNode(
+            TypeNode returnType,
             ExpressionNode expression,
             Position position
             ) : this(
+                returnType,
                 new IdentifierNode[] { },
+                new TypeNode[] { },
                 expression,
                 position
             ) { }
 
         public LambdaExpressionNode(
+            TypeNode returnType,
             IdentifierNode[] parameters,
+            TypeNode[] parameterTypes,
             ExpressionNode expression,
             Position position
             ) : base(position)
         {
+            ReturnType = returnType;
             Parameters = parameters;
+            ParameterTypes = parameterTypes;
             Expression = expression;
         }
 
@@ -403,7 +436,9 @@ namespace IronJS.Interpreter
             if (other == null) return false;
 
             return
-                Parameters.SequenceEqual(other.Parameters)
+                ReturnType.Equals(other.ReturnType)
+                && Parameters.SequenceEqual(other.Parameters)
+                && ParameterTypes.SequenceEqual(other.ParameterTypes)
                 && Expression.Equals(other.Expression)
                 && base.Equals(other);
         }
@@ -412,7 +447,9 @@ namespace IronJS.Interpreter
         {
             int hash = 17;
             hash *= 31 + base.GetHashCode();
+            hash *= 31 + ReturnType.GetHashCode();
             hash *= 31 + Parameters.GetHashCode();
+            hash *= 31 + ReturnType.GetHashCode();
             hash *= 31 + Expression.GetHashCode();
 
             return hash;
@@ -422,7 +459,7 @@ namespace IronJS.Interpreter
     public class LetInExpressionNode : ExpressionNode
     {
         public string Name { get; private set; }
-
+        
         public IdentifierNode[] Parameters { get; private set; }
 
         public ExpressionNode Expression { get; private set; }
@@ -829,7 +866,8 @@ namespace IronJS.Interpreter
 
             if (other == null) return false;
 
-            return Identifier.SequenceEqual(other.Identifier)
+            return 
+                Identifier.SequenceEqual(other.Identifier)
                 && base.Equals(other);
         }
 
@@ -838,6 +876,101 @@ namespace IronJS.Interpreter
             int hash = 17;
             hash *= 31 + base.GetHashCode();
             hash *= 31 + Identifier.GetHashCode();
+
+            return hash;
+        }
+    }
+
+    public abstract class TypeNode : ASTNode
+    {
+        public TypeNode(Position position) : base(position) { }
+    }
+
+    public class TypePropertyNode : TypeNode
+    {
+        public PropertyNode Property { get; private set; }
+
+        public TypePropertyNode(PropertyNode property) : base(property.Position)
+        {
+            Property = property;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as TypePropertyNode;
+
+            if (other == null) return false;
+
+            return
+                Property.Equals(other.Property)
+                && base.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash *= 31 + base.GetHashCode();
+            hash *= 31 + Property.GetHashCode();
+
+            return hash;
+        }
+    }
+
+    public class TypeUnitNode : TypeNode
+    {
+        public TypeUnitNode(Position position) : base(position) { }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as TypeUnitNode;
+
+            if (other == null) return false;
+
+            return base.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash *= 31 + base.GetHashCode();
+
+            return hash;
+        }
+    }
+
+    public class TypeFunctionNode : TypeNode
+    {
+        public TypeNode[] Parameters { get; private set; }
+
+        public TypeNode ReturnType { get; private set; }
+
+        public TypeFunctionNode(
+            TypeNode[] parameters, 
+            TypeNode returnType, 
+            Position position) : base(position)
+        {
+            Parameters = parameters;
+            ReturnType = returnType;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as TypeFunctionNode;
+
+            if (other == null) return false;
+
+            return
+                Parameters.SequenceEqual(other.Parameters)
+                && ReturnType.Equals(other.ReturnType)
+                && base.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash *= 31 + base.GetHashCode();
+            hash *= 31 + Parameters.GetHashCode();
+            hash *= 31 + ReturnType.GetHashCode();
 
             return hash;
         }

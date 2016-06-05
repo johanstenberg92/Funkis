@@ -34,17 +34,24 @@ program = { import } ["namespace" property] declaration { declaration }
 import = "using" property
 
 declaration =
-	"let" (identifier | unit) = expression
-	| "let" "func" identifier [  identifier { "," identifier } ] = expression
+	"let" (identifier | unit) ":" type = expression
+	| "let" "func" identifier [ parameters ] ":" type = expression
 
 expression =
 	list_declaration
 	| tuple_declaration
 	| "match" expression pattern_catch { pattern_catch }
 	| "if" expression "then" expression "else" expression
-	| "func" [ identifier { "," identifier } ] "->" expression
+	| "func" [ parameters ] ":" type "->" expression
 	| "let" identifier [ identifier { "," identifier } ] "=" expression "in" expression
     | ["+" | "-"] term
+
+parameters = "(" identifier ":" type { "," identifier ":" type } ")"
+
+type =
+	property
+	| unit
+	| (unit | "(" type { "," type } ")" ) "->" type
 
 list_declaration = "[" [ expression { "," expression } ] "]"
 

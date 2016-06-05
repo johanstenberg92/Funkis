@@ -1,5 +1,5 @@
 ﻿// Hello Goodbye
-let a = /* i'm a fun comment */ -5
+let a : double = /* i'm a fun comment */ -5.0
 
 /* I
    Span
@@ -8,4 +8,4 @@ let a = /* i'm a fun comment */ -5
    Rows
 */
 
-let b = +6 // STOP!
+let b : int = +6 // STOP!
