@@ -1,8 +1,7 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using IronJS.Interpreter;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Funkis.Compiler;
 
-namespace IronJSTests.Interpreter
+namespace FunkisTests.Compiler
 {
     [TestClass]
     public class ParserTests

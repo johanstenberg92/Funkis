@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace IronJS.Interpreter
+namespace Funkis.Compiler
 {
     public class Parser
     {
@@ -128,26 +128,6 @@ namespace IronJS.Interpreter
 
                 return new LetDeclarationNode(name, type, expression, position);
             }
-        }
-
-        private IdentifierNode[] ParameterIdentifiers()
-        {
-            var parameters = new List<IdentifierNode>();
-
-            var parameter = FoundIdentifier();
-
-            if (parameter != null)
-            {
-                parameters.Add(parameter);
-
-                while (Found(SymbolToken.Comma))
-                {
-                    parameter = ExpectIdentifier();
-                    parameters.Add(parameter);
-                }
-            }
-
-            return parameters.ToArray();
         }
 
         private Tuple<IdentifierNode[], TypeNode[]> Parameters(int min = 0)
@@ -298,7 +278,9 @@ namespace IronJS.Interpreter
             {
                 var name = ExpectIdentifier().Identifier;
 
-                var identifiers = ParameterIdentifiers();
+                Expect(SymbolToken.Colon);
+
+                var type = ExpectType();
 
                 Expect(SymbolToken.Assign);
 
@@ -309,8 +291,8 @@ namespace IronJS.Interpreter
                 var restExpr = Expression();
 
                 return new LetInExpressionNode(
-                    name, 
-                    identifiers, 
+                    name,
+                    type, 
                     bodyExpr, 
                     restExpr, 
                     position

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace IronJS.Interpreter
+namespace Funkis.Compiler
 {
     public class Lexer
     {

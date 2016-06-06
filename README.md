@@ -43,7 +43,7 @@ expression =
 	| "match" expression pattern_catch { pattern_catch }
 	| "if" expression "then" expression "else" expression
 	| "func" [ parameters ] ":" type "->" expression
-	| "let" identifier [ identifier { "," identifier } ] "=" expression "in" expression
+	| "let" identifier ":" type "=" expression "in" expression
     | ["+" | "-"] term
 
 parameters = "(" identifier ":" type { "," identifier ":" type } ")"

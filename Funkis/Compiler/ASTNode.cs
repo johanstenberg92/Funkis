@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace IronJS.Interpreter
+namespace Funkis.Compiler
 {
     public abstract class ASTNode
     {
@@ -170,7 +170,18 @@ namespace IronJS.Interpreter
         }
     }
 
-    public class FuncDeclarationNode : DeclarationNode
+    public interface FunctionASTNode
+    {
+        IdentifierNode[] Parameters { get; }
+
+        TypeNode[] ParameterTypes { get; }
+
+        TypeNode ReturnType { get; }
+
+        ExpressionNode Expression { get; }
+    }
+
+    public class FuncDeclarationNode : DeclarationNode, FunctionASTNode
     {
         public string Name { get; private set; }
 
@@ -393,7 +404,7 @@ namespace IronJS.Interpreter
         }
     }
 
-    public class LambdaExpressionNode : ExpressionNode
+    public class LambdaExpressionNode : ExpressionNode, FunctionASTNode
     {
         public TypeNode ReturnType { get; private set; }
 
@@ -459,8 +470,8 @@ namespace IronJS.Interpreter
     public class LetInExpressionNode : ExpressionNode
     {
         public string Name { get; private set; }
-        
-        public IdentifierNode[] Parameters { get; private set; }
+
+        public TypeNode Type { get; private set; }
 
         public ExpressionNode Expression { get; private set; }
 
@@ -468,14 +479,14 @@ namespace IronJS.Interpreter
 
         public LetInExpressionNode(
             string name,
-            IdentifierNode[] parameters,
+            TypeNode type,
             ExpressionNode expression,
             ExpressionNode inExpression,
             Position position
             ) : base(position)
         {
             Name = name;
-            Parameters = parameters;
+            Type = type;
             Expression = expression;
             InExpression = inExpression;
         }
@@ -488,7 +499,7 @@ namespace IronJS.Interpreter
 
             return
                 Name.Equals(other.Name)
-                && Parameters.SequenceEqual(other.Parameters)
+                && Type.Equals(other.Type)
                 && Expression.Equals(other.Expression)
                 && InExpression.Equals(other.InExpression)
                 && base.Equals(other);
@@ -499,7 +510,7 @@ namespace IronJS.Interpreter
             int hash = 17;
             hash *= 31 + base.GetHashCode();
             hash *= 31 + Name.GetHashCode();
-            hash *= 31 + Parameters.GetHashCode();
+            hash *= 31 + Type.GetHashCode();
             hash *= 31 + Expression.GetHashCode();
             hash *= 31 + InExpression.GetHashCode();
 
@@ -884,6 +895,36 @@ namespace IronJS.Interpreter
     public abstract class TypeNode : ASTNode
     {
         public TypeNode(Position position) : base(position) { }
+    }
+
+    public class CLRTypeNode : TypeNode
+    {
+        public Type Type { get; private set; }
+
+        public CLRTypeNode(Type type, Position position) : base(position)
+        {
+            Type = type;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as CLRTypeNode;
+
+            if (other == null) return false;
+
+            return
+                Type.Equals(other.Type)
+                && base.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash *= 31 + base.GetHashCode();
+            hash *= 31 + Type.GetHashCode();
+
+            return hash;
+        }
     }
 
     public class TypePropertyNode : TypeNode

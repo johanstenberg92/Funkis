@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace IronJS.Interpreter
+namespace Funkis.Compiler
 {
     public class NameAnalyzer
     {
@@ -62,9 +62,9 @@ namespace IronJS.Interpreter
 
             var expr = AnalyzeExpressionNode(node.Expression);
 
-            ValidateType(node.Type);
+            var convertedType = ConvertType(node.Type);
 
-            var newNode = new LetDeclarationNode(node.Name, node.Type, expr, node.Position);
+            var newNode = new LetDeclarationNode(node.Name, convertedType, expr, node.Position);
 
             _scope.ReplaceNode(node, newNode);
 
@@ -91,15 +91,15 @@ namespace IronJS.Interpreter
                 _scope.Remove(id.Identifier);
             }
 
-            ValidateType(node.ReturnType);
+            var convertedReturnType = ConvertType(node.ReturnType);
 
-            ValidateTypes(node.ParameterTypes);
+            var convertedParameterTypes = ConvertTypes(node.ParameterTypes);
 
             var newNode = new FuncDeclarationNode(
                 name,
-                node.ReturnType,
+                convertedReturnType,
                 node.Parameters,
-                node.ParameterTypes,
+                convertedParameterTypes,
                 expr,
                 node.Position
             );
@@ -215,14 +215,14 @@ namespace IronJS.Interpreter
                 _scope.Remove(id.Identifier);
             }
 
-            ValidateType(node.ReturnType);
+            var convertedReturnType = ConvertType(node.ReturnType);
 
-            ValidateTypes(node.ParameterTypes);
+            var convertedParameterTypes = ConvertTypes(node.ParameterTypes);
 
             return new LambdaExpressionNode(
-                node.ReturnType, 
-                node.Parameters, 
-                node.ParameterTypes, 
+                convertedReturnType,
+                node.Parameters,
+                convertedParameterTypes,
                 expr, 
                 node.Position
             );
@@ -232,19 +232,7 @@ namespace IronJS.Interpreter
         {
             var name = node.Name;
 
-            RequireUnique(node, node.Parameters, name);
-
-            foreach (IdentifierNode id in node.Parameters)
-            {
-                AddToScope(id.Identifier, id);
-            }
-
             var expr = AnalyzeExpressionNode(node.Expression);
-
-            foreach (IdentifierNode id in node.Parameters)
-            {
-                _scope.Remove(id.Identifier);
-            }
 
             AddToScope(name, node);
 
@@ -252,7 +240,7 @@ namespace IronJS.Interpreter
 
             var newNode = new LetInExpressionNode(
                 name,
-                node.Parameters,
+                node.Type,
                 expr,
                 inExpr,
                 node.Position
@@ -355,14 +343,25 @@ namespace IronJS.Interpreter
             );
         }
 
-        private void ValidateTypes(TypeNode[] types)
+        private CLRTypeNode[] ConvertTypes(TypeNode[] types)
         {
-            foreach (TypeNode type in types) ValidateType(type);
+            var converted = new List<CLRTypeNode>();
+            
+            foreach (TypeNode type in types)
+            {
+                converted.Add(ConvertType(type));
+            }
+
+            return converted.ToArray();
         }
 
-        private void ValidateType(TypeNode type)
+        private CLRTypeNode ConvertType(TypeNode type)
         {
-            if (!_scope.IsTypeKnown(type)) ThrowNameAnalyzerError(type);
+            var converted = _scope.ConvertToCLRTypeNode(type);
+
+            if (converted == null) ThrowNameAnalyzerError(type);
+
+            return converted;
         }
 
         private void ThrowNameAnalyzerError(ASTNode node)

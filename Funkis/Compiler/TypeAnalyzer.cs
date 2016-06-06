@@ -1,14 +1,17 @@
-﻿using System;
+﻿using Funkis.Standard;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace IronJS.Interpreter
+namespace Funkis.Compiler
 {
     public class TypeAnalyzer
     {
         private IDictionary<ASTNode, Type> _types;
+
+        private IDictionary<string, Type> _parameterTypes;
 
         private ProgramNode _ast;
 
@@ -43,13 +46,48 @@ namespace IronJS.Interpreter
         private void AnalyzeLetDeclarationNode(LetDeclarationNode node)
         {
             var type = AnalyzeExpressionNode(node.Expression);
+
+            if (!node.Type.Equals(type)) ThrowTypeAnalyzerError(node);
+
             _types.Add(node, type);
         }
 
         private void AnalyzeFuncDeclarationNode(FuncDeclarationNode node)
         {
-            var type = AnalyzeExpressionNode(node.Expression);
-            _types.Add(node, type);
+            var functionType = AnalyzeFunctionASTNode(node);
+
+            if (functionType == null) ThrowTypeAnalyzerError(node);
+
+            _types.Add(node, functionType);
+        }
+
+        private Type AnalyzeFunctionASTNode(FunctionASTNode node)
+        {
+            var types = new List<Type>();
+
+            for (var i = 0; i < node.Parameters.Length; ++i)
+            {
+                var identifier = node.Parameters[i].Identifier;
+                var type = (node.ParameterTypes[i] as CLRTypeNode).Type;
+                _parameterTypes.Add(identifier, type);
+                types.Add(type);
+            }
+
+            var resType = AnalyzeExpressionNode(node.Expression);
+
+            if (!node.ReturnType.Equals(resType)) return null;
+
+            types.Add(resType);
+
+            var functionType = _scope.GetFuncType(types.ToArray());
+
+            foreach (IdentifierNode parameter in node.Parameters)
+            {
+                var identifier = parameter.Identifier;
+                _parameterTypes.Remove(identifier);
+            }
+
+            return functionType;
         }
 
         private Type AnalyzeExpressionNode(ExpressionNode node)
@@ -69,7 +107,7 @@ namespace IronJS.Interpreter
             if (node is TermExpressionNode)
                 return AnalyzeTermExpressionNode(node as TermExpressionNode);
 
-            ThrowNameAnalyzerError(node);
+            ThrowTypeAnalyzerError(node);
             return null;
         }
 
@@ -121,7 +159,7 @@ namespace IronJS.Interpreter
 
             var numberOfTypes = types.Count;
 
-            if (numberOfTypes > TupleMaxLength) ThrowNameAnalyzerError(node);
+            if (numberOfTypes > TupleMaxLength) ThrowTypeAnalyzerError(node);
             
             var typeArgs = types.ToArray();
 
@@ -140,7 +178,7 @@ namespace IronJS.Interpreter
         {
             var matchExprType = AnalyzeExpressionNode(node.MatchExpression);
 
-            if (matchExprType != typeof(bool)) ThrowNameAnalyzerError(node);
+            if (matchExprType != typeof(bool)) ThrowTypeAnalyzerError(node);
 
             var types = new List<Type>();
 
@@ -162,7 +200,7 @@ namespace IronJS.Interpreter
         {
             var ifExprType = AnalyzeExpressionNode(node.IfExpression);
 
-            if (ifExprType != typeof(bool)) ThrowNameAnalyzerError(node);
+            if (ifExprType != typeof(bool)) ThrowTypeAnalyzerError(node);
 
             var types = new List<Type>();
 
@@ -180,16 +218,22 @@ namespace IronJS.Interpreter
 
             return res;
         }
-
+        
         private Type AnalyzeLambdaExpressionNode(LambdaExpressionNode node)
         {
-            // hard?
-            return null;
+            var functionType = AnalyzeFunctionASTNode(node);
+
+            if (functionType == null) ThrowTypeAnalyzerError(node);
+
+            _types.Add(node, functionType);
+
+            return functionType;
         }
 
+        // TODO
         private Type AnalyzeLetInExpressionNode(LetInExpressionNode node)
         {
-            return null;
+            throw new NotImplementedException();
         }
 
         private Type AnalyzeTermExpressionNode(TermExpressionNode node)
@@ -197,7 +241,7 @@ namespace IronJS.Interpreter
             var type = AnalyzeTermNode(node.Term);
 
             if ((node.Op == '-' && !HasNegate(type)) || (node.Op == '+' && !HasUnaryPlus(type)))
-                ThrowNameAnalyzerError(node);
+                ThrowTypeAnalyzerError(node);
 
             _types.Add(node, type);
 
@@ -218,6 +262,7 @@ namespace IronJS.Interpreter
             "!="
         };
 
+        // TODO
         private Type AnalyzeTermNode(TermNode node)
         {
             var containsBoolOperation = 
@@ -229,7 +274,7 @@ namespace IronJS.Interpreter
                     node.OptionalFactors.Count() != 1
                     || AnalyzeFactorNode(node.Factor) != typeof(bool)
                     || AnalyzeFactorNode(node.OptionalFactors[0]) != typeof(bool)
-                    ) ThrowNameAnalyzerError(node);
+                    ) ThrowTypeAnalyzerError(node);
 
                 var boolType = typeof(bool);
                 _types.Add(node, boolType);
@@ -255,27 +300,51 @@ namespace IronJS.Interpreter
         {
             if (node is PropertyNode)
                 return AnalyzePropertyNode(node as PropertyNode);
-            if (node is FunctionCallNode)
-                return AnalyzeFunctionCallNode(node as FunctionCallNode);
+            if (node is FunctionCallWithDeclNode)
+                return AnalyzeFunctionCallWithDeclNode(node as FunctionCallWithDeclNode);
             if (node is ExpressionFactorNode)
                 return AnalyzeExpressionFactorNode(node as ExpressionFactorNode);
             else
                 return AnalyzeLiteralNode(node);
         }
-
+        
         private Type AnalyzePropertyNode(PropertyNode node)
         {
-            return null;
+            var type = _scope.GetPropertyType(node);
+
+            if (type == null) ThrowTypeAnalyzerError(node);
+
+            _types.Add(node, type);
+
+            return type;
         }
 
-        private Type AnalyzeFunctionCallNode(FunctionCallNode node)
+        // TODO
+        private Type AnalyzeFunctionCallWithDeclNode(FunctionCallWithDeclNode node)
         {
+            var functionDecl = node.Declaration;
+
+            if (functionDecl is ASTDeclaration)
+            {
+            }
+
+            var argTypes = new List<Type>();
+
+            foreach (ExpressionNode arg in node.Expressions)
+            {
+                var t = AnalyzeExpressionNode(arg);
+                argTypes.Add(t);
+            }
             return null;
         }
 
         private Type AnalyzeExpressionFactorNode(ExpressionFactorNode node)
         {
-            return AnalyzeExpressionNode(node.Expression);
+            var type = AnalyzeExpressionNode(node.Expression);
+
+            _types.Add(node, type);
+
+            return type;
         }
 
         private Type AnalyzeLiteralNode(FactorNode node)
@@ -287,13 +356,13 @@ namespace IronJS.Interpreter
             if (node is BoolLiteralNode) return typeof(bool);
             if (node is CharLiteralNode) return typeof(char);
             if (node is StringLiteralNode) return typeof(string);
-            if (node is UnitLiteralNode) return null; // TODO
+            if (node is UnitLiteralNode) return typeof(Unit);
 
-            ThrowNameAnalyzerError(node);
+            ThrowTypeAnalyzerError(node);
             return null;
         }
 
-        private void ThrowNameAnalyzerError(ASTNode node)
+        private void ThrowTypeAnalyzerError(ASTNode node)
         {
             var position = node.Position;
             throw new InvalidOperationException(
@@ -309,7 +378,7 @@ namespace IronJS.Interpreter
 
                 if (set.Count != 1)
                 {
-                    ThrowNameAnalyzerError(parent);
+                    ThrowTypeAnalyzerError(parent);
                 }
             }
         }

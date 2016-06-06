@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace IronJS.Interpreter
+namespace Funkis.Compiler
 {
 
     public class Scanner

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace IronJS.Interpreter
+namespace Funkis.Compiler
 {
     public abstract class Token
     {

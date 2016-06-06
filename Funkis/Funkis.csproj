@@ -47,18 +47,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Interpreter\AnalysisScope.cs" />
-    <Compile Include="Interpreter\ASTNode.cs" />
-    <Compile Include="Interpreter\Declaration.cs" />
-    <Compile Include="Interpreter\Lexer.cs" />
-    <Compile Include="Interpreter\NameAnalyzer.cs" />
-    <Compile Include="Interpreter\Parser.cs" />
-    <Compile Include="Interpreter\Position.cs" />
-    <Compile Include="Interpreter\Scanner.cs" />
-    <Compile Include="Interpreter\Token.cs" />
-    <Compile Include="Interpreter\TypeAnalyzer.cs" />
+    <Compile Include="Compiler\AnalysisScope.cs" />
+    <Compile Include="Compiler\ASTNode.cs" />
+    <Compile Include="Compiler\Declaration.cs" />
+    <Compile Include="Compiler\Lexer.cs" />
+    <Compile Include="Compiler\NameAnalyzer.cs" />
+    <Compile Include="Compiler\Parser.cs" />
+    <Compile Include="Compiler\Position.cs" />
+    <Compile Include="Compiler\Scanner.cs" />
+    <Compile Include="Compiler\Token.cs" />
+    <Compile Include="Compiler\TypeAnalyzer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Standard\Unit.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

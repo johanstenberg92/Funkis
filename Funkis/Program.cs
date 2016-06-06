@@ -1,8 +1,8 @@
-﻿using IronJS.Interpreter;
+﻿using Funkis.Compiler;
 using System;
 using System.IO;
 
-namespace IronJS
+namespace Funkis
 {
     class Program
     {
@@ -10,7 +10,7 @@ namespace IronJS
         {
             if (args.Length != 0 || (args.Length == 1 && !args[0].EndsWith(".funk")))
             {
-                Console.WriteLine("You need to provide one and only one funk file (*.funk) to be interpreted.");
+                Console.WriteLine("You need to provide one and only one funkis file (*.funk) to be interpreted.");
                 Console.WriteLine("This file can later reference other files if needed.");
                 return -1;
             }

@@ -1,4 +1,4 @@
-﻿namespace IronJS.Interpreter
+﻿namespace Funkis.Compiler
 {
     public abstract class Declaration
     {

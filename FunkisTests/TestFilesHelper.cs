@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace IronJSTests
+namespace FunkisTests
 {
     static class TestFilesHelper
     {

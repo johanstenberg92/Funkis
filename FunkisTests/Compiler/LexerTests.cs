@@ -1,8 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using IronJS.Interpreter;
-using System;
+using Funkis.Compiler;
 
-namespace IronJSTests
+namespace FunkisTests.Compiler
 {
     [TestClass]
     public class LexerTests
