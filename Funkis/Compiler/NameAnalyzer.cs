@@ -9,6 +9,11 @@ namespace Funkis.Compiler
 
         private AnalysisScope _scope;
 
+        public NameAnalyzer(ProgramNode ast) : this(ast, new AnalysisScope())
+        {
+            
+        }
+
         public NameAnalyzer(ProgramNode ast, AnalysisScope scope)
         {
             _ast = ast;
@@ -19,7 +24,11 @@ namespace Funkis.Compiler
         {
             AddImportsToScope(_ast.Imports);
 
-            // TODO namespace!
+            if (_ast.Namespace != null)
+            {
+                var ns = _ast.Namespace.PropertyAsString();
+                _scope.SetNamespace(ns);
+            }
 
             var declarations = new List<DeclarationNode>();
 
@@ -39,7 +48,10 @@ namespace Funkis.Compiler
 
         private void AddImportsToScope(ImportNode[] imports)
         {
-            // TODO
+            foreach (ImportNode import in imports)
+            {
+                _scope.AddImport(import.Property.PropertyAsString());
+            }
         }
 
         private DeclarationNode AnalyzeDeclarationNode(DeclarationNode node)

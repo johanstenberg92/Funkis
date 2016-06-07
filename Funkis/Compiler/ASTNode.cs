@@ -616,6 +616,17 @@ namespace Funkis.Compiler
         )
         { }
 
+        public TermNode(
+            FactorNode lhs,
+            string op,
+            FactorNode rhs
+        ) : this(
+            lhs,
+            new string[] { op },
+            new FactorNode[] { rhs }
+        )
+        { }
+
         public TermNode(FactorNode factor, string[] optionalOps, FactorNode[] optionalFactors) : base(factor.Position)
         {
             Factor = factor;

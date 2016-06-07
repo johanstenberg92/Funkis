@@ -1,4 +1,6 @@
-﻿let func hello_world : () = 
-    println ("hello world!")
+﻿using System
+
+let func hello_world : () =
+    Console.WriteLine ("hello world!")
 
 let () : () = hello_world ()

@@ -7,11 +7,15 @@ namespace Funkis.Compiler
 {
     public class AnalysisScope
     {
-        private Dictionary<string, Declaration> _declarations =
+        private IDictionary<string, Declaration> _declarations =
             new Dictionary<string, Declaration>();
 
-        private Dictionary<ASTNode, ASTDeclaration> _nodesToDeclarations =
+        private IDictionary<ASTNode, ASTDeclaration> _nodesToDeclarations =
             new Dictionary<ASTNode, ASTDeclaration>();
+
+        private ISet<string> _imports = new HashSet<string>();
+
+        private string Namespace;
 
         public bool Add(string name, ASTNode node)
         {
@@ -45,7 +49,9 @@ namespace Funkis.Compiler
 
         public Declaration Get(string name)
         {
-            return _declarations[name];
+            if (_declarations.ContainsKey(name)) return _declarations[name];
+
+            return null;
         }
 
         public void ReplaceNode(ASTNode oldNode, ASTNode newNode)
@@ -56,6 +62,16 @@ namespace Funkis.Compiler
             {
                 decl.Node = newNode;
             }
+        }
+
+        public void AddImport(string import)
+        {
+            _imports.Add(import);
+        }
+
+        public void SetNamespace(string ns)
+        {
+            Namespace = ns;
         }
 
         private static readonly IDictionary<string, Type> NativeTypes = new Dictionary<string, Type>()
@@ -144,12 +160,14 @@ namespace Funkis.Compiler
             }
             else
             {
-                // We default import system I presume,
-                // however all imports must be checked here
+                // Cases:
+                //
+                // It is a) static method from assembly -> (always X.Y.Z.METHOD, not just METHOD)
+                //
+                // It is b) identifier from own program
+                // all imports must be checked here
                 // to find it
                 var t = Type.GetType(asString);
-
-                if (t == null) t = Type.GetType("System." + asString);
 
                 return t;
             }

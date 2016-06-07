@@ -113,8 +113,8 @@ Examples of Funkis programs can be found in the `FunkisTests/TestFiles` folder.
 
 ### Hello World
 ```
-let func hello_world = 
+let func hello_world : () = 
     println ("hello world!")
 
-let () = hello_world ()
+let () : () = hello_world ()
 ```

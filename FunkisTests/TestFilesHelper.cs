@@ -13,5 +13,15 @@ namespace FunkisTests
         {
             return File.ReadAllText("comments.funk");
         }
+
+        public static string ReadAddTestFile()
+        {
+            return File.ReadAllText("add.funk");
+        }
+
+        public static string ReadMatchTestFile()
+        {
+            return File.ReadAllText("match.funk");
+        }
     }
 }

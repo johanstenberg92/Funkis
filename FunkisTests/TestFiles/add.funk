@@ -1,0 +1,9 @@
+﻿using System
+
+namespace Functions.Funk
+
+let func add (a: int, b: int) : int = a + b
+
+let c : int = add (a, b)
+
+let () : () = Console.WriteLine(c)

@@ -57,6 +57,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Compiler\LexerTests.cs" />
+    <Compile Include="Compiler\NameAnalysisTests.cs" />
     <Compile Include="Compiler\ScannerTests.cs" />
     <Compile Include="Compiler\ParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -73,7 +74,13 @@
     <None Include="TestFiles\comments.funk">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="TestFiles\add.funk">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="TestFiles\hello-world.funk">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\match.funk">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

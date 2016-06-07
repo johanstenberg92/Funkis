@@ -26,6 +26,7 @@ namespace Funkis.Compiler
         public IDictionary<ASTNode, Type> Analyze()
         {
             _types = new Dictionary<ASTNode, Type>();
+            _parameterTypes = new Dictionary<string, Type>();
 
             foreach (DeclarationNode node in _ast.Declarations)
             {
